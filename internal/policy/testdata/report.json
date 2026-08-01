@@ -1,0 +1,46 @@
+{
+  "tool": "docker-security",
+  "target_type": "image",
+  "target": "docker.io/acme/api:1.4.2",
+  "generated_at": "2026-01-01T00:00:00Z",
+  "findings": [
+    {
+      "rule_id": "DS-RAT-VULN-0001",
+      "module": "vuln",
+      "severity": "CRITICAL",
+      "title": "CVE-2025-0001 in openssl 3.0.1",
+      "description": "Heap overflow in certificate parsing.",
+      "resource": "pkg:deb/openssl@3.0.1",
+      "remediation": "Upgrade openssl to 3.0.14.",
+      "metadata": { "cve": "CVE-2025-0001" }
+    },
+    {
+      "rule_id": "DS-RAT-VULN-0002",
+      "module": "vuln",
+      "severity": "HIGH",
+      "title": "CVE-2025-0002 in zlib 1.2.11",
+      "resource": "pkg:deb/zlib@1.2.11",
+      "remediation": "Upgrade zlib to 1.2.13."
+    },
+    {
+      "rule_id": "DS-RAT-VULN-0003",
+      "module": "vuln",
+      "severity": "HIGH",
+      "title": "CVE-2025-0003 in libcurl 7.79.0",
+      "resource": "pkg:deb/curl@7.79.0",
+      "remediation": "Upgrade curl to 7.88.0."
+    },
+    {
+      "rule_id": "DS-RAT-SBOM-LICENSE",
+      "module": "sbom",
+      "severity": "INFO",
+      "title": "Package under GPL-3.0-only",
+      "resource": "pkg:pypi/somelib@2.0.0",
+      "metadata": { "license": "GPL-3.0-only" }
+    }
+  ],
+  "module_runs": [
+    { "module": "vuln" },
+    { "module": "sbom" }
+  ]
+}

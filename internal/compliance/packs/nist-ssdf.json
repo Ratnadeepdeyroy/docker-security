@@ -1,0 +1,72 @@
+{
+  "framework": "nist-ssdf",
+  "version": "1.1",
+  "title": "NIST SP 800-218 Secure Software Development Framework",
+  "source_url": "https://csrc.nist.gov/pubs/sp/800/218/final",
+  "controls": [
+    {
+      "id": "PS.3.2",
+      "title": "Collect and maintain provenance data (SBOM) for each release",
+      "level": 1,
+      "assessment": "automated",
+      "module": "sbom",
+      "check": "DS-RAT-SBOM-001",
+      "present_means": "pass",
+      "expected": "an SBOM is generated for the artifact",
+      "remediation": "Generate an SBOM (dsecrat sbom) as a mandatory build step.",
+      "maps_to": {
+        "nist-800-53-r5": ["SA-10", "SR-4"],
+        "pci-dss-4.0.1": ["6.3.2"],
+        "iso-27001-2022": ["A.8.28"]
+      },
+      "references": ["SSDF PS.3.2", "CISA SBOM minimum elements"]
+    },
+    {
+      "id": "RV.1.1",
+      "title": "Identify and confirm vulnerabilities in released software",
+      "level": 1,
+      "assessment": "automated",
+      "module": "vuln",
+      "check": "DS-RAT-VULN-",
+      "expected": "no known-vulnerable components remain unaddressed",
+      "remediation": "Upgrade or waive each matched CVE; gate the build on severity.",
+      "maps_to": {
+        "nist-800-53-r5": ["RA-5", "SI-2"],
+        "pci-dss-4.0.1": ["6.3.1", "11.3.1"],
+        "iso-27001-2022": ["A.8.8"]
+      },
+      "references": ["SSDF RV.1.1"]
+    },
+    {
+      "id": "PO.3.2",
+      "title": "Sign and verify artifacts to establish integrity/provenance",
+      "level": 1,
+      "assessment": "hybrid",
+      "module": "verify",
+      "check": "DS-RAT-SUP-",
+      "expected": "release artifacts are signed and verification is enforced",
+      "remediation": "Sign images (dsecrat sign) and enforce verification at admission.",
+      "maps_to": {
+        "nist-800-53-r5": ["SR-4", "SI-7"],
+        "iso-27001-2022": ["A.8.28"]
+      },
+      "references": ["SSDF PO.3.2", "PO.5.1"]
+    },
+    {
+      "id": "PW.4.1",
+      "title": "Acquire well-secured components (no embedded secrets)",
+      "level": 1,
+      "assessment": "automated",
+      "module": "secrets",
+      "check": "DS-RAT-SEC-",
+      "expected": "no embedded credentials in the artifact",
+      "remediation": "Remove embedded secrets; rotate any exposed credential.",
+      "maps_to": {
+        "nist-800-53-r5": ["IA-5"],
+        "pci-dss-4.0.1": ["8.3.2"],
+        "iso-27001-2022": ["A.5.17"]
+      },
+      "references": ["SSDF PW.4.1"]
+    }
+  ]
+}

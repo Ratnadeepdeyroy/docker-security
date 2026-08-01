@@ -1,0 +1,27 @@
+{
+  "rule_id": "DS-RAT-VULN-042",
+  "module": "vuln",
+  "severity": "CRITICAL",
+  "severity_rank": 5,
+  "category": "known-vulnerability",
+  "title": "openssl 3.0.1 affected by CVE-2022-3602",
+  "resource": "pkg:deb/debian/openssl@3.0.1",
+  "why_it_matters": "A component matches a published advisory. If the vulnerable code path is reachable, an attacker with a matching exploit can compromise the container.",
+  "detail": "The installed openssl is within the affected range of a published advisory.",
+  "remediation": [
+    "Upgrade openssl to 3.0.7 or later",
+    "rebuild and redeploy the image"
+  ],
+  "has_remediation": true,
+  "effort": "medium",
+  "frameworks": [
+    "cwe=CWE-787",
+    "https://attack.mitre.org/techniques/T1190/",
+    "https://nvd.nist.gov/vuln/detail/CVE-2022-3602"
+  ],
+  "references": [
+    "https://attack.mitre.org/techniques/T1190/",
+    "https://nvd.nist.gov/vuln/detail/CVE-2022-3602"
+  ],
+  "confidence": "high"
+}

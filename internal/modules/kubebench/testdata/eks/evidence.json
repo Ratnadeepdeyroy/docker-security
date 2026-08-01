@@ -1,0 +1,35 @@
+{
+  "version": "1.28.5",
+  "platform": "eks",
+  "kubelet": {
+    "flags": {
+      "anonymous-auth": "false",
+      "authorization-mode": "Webhook",
+      "client-ca-file": "/etc/kubernetes/pki/ca.crt",
+      "read-only-port": "0",
+      "streaming-connection-idle-timeout": "5m",
+      "make-iptables-util-chains": "true",
+      "rotate-server-certificates": "true"
+    }
+  },
+  "files": [
+    {"path": "/var/lib/kubelet/config.yaml", "exists": true, "mode": "0600", "owner": "root", "group": "root"}
+  ],
+  "rbac": {
+    "cluster_role_bindings": [
+      {"name": "cluster-admin", "role_ref": "ClusterRole/cluster-admin", "subjects": [{"kind": "Group", "name": "system:masters"}]}
+    ],
+    "roles": [
+      {"name": "app-reader", "rules": [{"api_groups": [""], "resources": ["pods"], "verbs": ["get", "list"]}]}
+    ],
+    "service_accounts": [
+      {"namespace": "app", "name": "default", "automount_service_account_token": false}
+    ]
+  },
+  "pod_security": {
+    "admission_enabled": true,
+    "namespace_enforce": {"app": "restricted"}
+  },
+  "network_policy_namespaces": ["app"],
+  "namespaces": ["app"]
+}

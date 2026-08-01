@@ -1,0 +1,10 @@
+{
+  "workload": "payments-api",
+  "syscalls": ["openat", "read", "write", "close", "socket", "connect", "accept4", "epoll_wait", "epoll_ctl"],
+  "capabilities": ["NET_BIND_SERVICE"],
+  "file_reads": ["/etc/ssl/certs/**", "/app/config.yaml"],
+  "file_writes": ["/var/log/payments/**", "/tmp/**"],
+  "file_execs": ["/app/payments-api"],
+  "network": true,
+  "complete": true
+}

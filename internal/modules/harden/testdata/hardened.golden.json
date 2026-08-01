@@ -1,0 +1,19 @@
+[
+  {
+    "rule_id": "DS-RAT-BOX-020",
+    "module": "harden",
+    "severity": "INFO",
+    "title": "RuntimeClass strength guidance",
+    "description": "For internal workloads, recommended runtime: runc. trusted first-party code can run under runc provided the hardening controls in this report pass.",
+    "resource": "payments-api",
+    "remediation": "Set the workload's runtimeClass to at least the recommended runtime for its trust level.",
+    "references": [
+      "NIST SP 800-190 4.5.4",
+      "MITRE ATT\u0026CK T1611"
+    ],
+    "metadata": {
+      "recommended": "runc",
+      "trust": "internal"
+    }
+  }
+]

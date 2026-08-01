@@ -1,0 +1,24 @@
+{
+  "apiVersion": "admission.k8s.io/v1",
+  "kind": "AdmissionReview",
+  "request": {
+    "uid": "req-privileged-001",
+    "kind": { "group": "", "version": "v1", "kind": "Pod" },
+    "resource": { "group": "", "version": "v1", "resource": "pods" },
+    "name": "bad-pod",
+    "namespace": "default",
+    "operation": "CREATE",
+    "object": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": { "name": "bad-pod", "namespace": "default" },
+      "spec": {
+        "hostNetwork": true,
+        "containers": [
+          { "name": "app", "image": "docker.io/evil/app:latest", "securityContext": { "privileged": true } }
+        ],
+        "volumes": [ { "name": "host-root", "hostPath": { "path": "/" } } ]
+      }
+    }
+  }
+}

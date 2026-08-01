@@ -1,0 +1,54 @@
+[
+  {
+    "rule_id": "DS-RAT-POL-000",
+    "module": "policy",
+    "severity": "HIGH",
+    "title": "Policy decision: DENY (ci-gate)",
+    "description": "2 rule(s) blocked admission under policy \"ci-gate\" (mode: enforce).",
+    "resource": "docker.io/acme/api:1.4.2",
+    "metadata": {
+      "decision": "deny",
+      "denial_count": "2",
+      "mode": "enforce",
+      "policy": "ci-gate"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-POL-100",
+    "module": "policy",
+    "severity": "HIGH",
+    "title": "Policy deny: require-signature",
+    "description": "image is not signed by a trusted key",
+    "resource": "docker.io/acme/api:1.4.2",
+    "remediation": "Sign the image: dsecrat sign --image \u003cref\u003e",
+    "metadata": {
+      "effect": "deny",
+      "rule": "require-signature"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-POL-100",
+    "module": "policy",
+    "severity": "CRITICAL",
+    "title": "Policy deny: no-critical-cves",
+    "description": "image has critical CVEs",
+    "resource": "docker.io/acme/api:1.4.2",
+    "remediation": "Upgrade affected packages to clear critical CVEs.",
+    "metadata": {
+      "effect": "deny",
+      "rule": "no-critical-cves"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-POL-101",
+    "module": "policy",
+    "severity": "MEDIUM",
+    "title": "Policy warn: restricted-license",
+    "description": "package under a restricted license",
+    "resource": "docker.io/acme/api:1.4.2",
+    "metadata": {
+      "effect": "warn",
+      "rule": "restricted-license"
+    }
+  }
+]

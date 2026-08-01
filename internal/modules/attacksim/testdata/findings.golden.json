@@ -1,0 +1,54 @@
+[
+  {
+    "rule_id": "DS-RAT-ATK-000",
+    "module": "attacksim",
+    "severity": "INFO",
+    "title": "Control validation: 8/10 scenarios caught, 2 gap(s)",
+    "description": "Safe, simulated ATT\u0026CK-for-Containers scenarios evaluated against the configured controls. No actions were executed.",
+    "resource": "test-env",
+    "references": [
+      "https://attack.mitre.org/matrices/enterprise/containers/"
+    ],
+    "metadata": {
+      "gaps": "2",
+      "total": "10",
+      "validated": "8"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-ATK-006",
+    "module": "attacksim",
+    "severity": "MEDIUM",
+    "title": "Undetected: Enable privilege escalation flag (T1613)",
+    "description": "Create a container with allowPrivilegeEscalation:true, permitting setuid-based escalation inside the container. No admission control fired for ATT\u0026CK T1613 (Discovery); evaluated by: recorded-phase4-admission.",
+    "resource": "pod/attacker",
+    "remediation": "Add or fix a admission control for T1613 (Enable privilege escalation flag). This is a defensive gap, not an active compromise.",
+    "references": [
+      "https://attack.mitre.org/techniques/T1613/"
+    ],
+    "metadata": {
+      "action": "allowPrivilegeEscalation",
+      "expect": "admission",
+      "tactic": "Discovery",
+      "technique": "T1613"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-ATK-010",
+    "module": "attacksim",
+    "severity": "CRITICAL",
+    "title": "Undetected: Open a reverse shell (T1059)",
+    "description": "Establish outbound interactive egress (reverse shell) from a container — command-and-control. No detection control fired for ATT\u0026CK T1059 (Execution); evaluated by: recorded-phase5-detection.",
+    "resource": "pod/web",
+    "remediation": "Add or fix a detection control for T1059 (Open a reverse shell). This is a defensive gap, not an active compromise.",
+    "references": [
+      "https://attack.mitre.org/techniques/T1059/"
+    ],
+    "metadata": {
+      "action": "reverse shell egress",
+      "expect": "detection",
+      "tactic": "Execution",
+      "technique": "T1059"
+    }
+  }
+]

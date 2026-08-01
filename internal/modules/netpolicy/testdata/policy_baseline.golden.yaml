@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: shop
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  # no egress rules: this denies all egress for the selected pods
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-shop-checkout
+  namespace: shop
+spec:
+  podSelector:
+    matchLabels:
+      app: checkout
+      tier: backend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.9.0.20/32
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# Advisory DNS/FQDN egress allowlist (generated from observed traffic).
+# Apply with an FQDN-aware policy engine (Cilium toFQDNs / Calico DNS policy).
+kind: FQDNEgressAllowlist
+workload: shop/checkout
+namespace: shop
+allow:
+  - fqdn: api.stripe.com
+    class: intended
+    ports:
+      - protocol: TCP
+        port: 443
+    # resolved name "api.stripe.com" contacted 6 times (>= baseline 3)
+# excluded (classified anomalous by intent modelling — review before allowing):
+#   - 185.220.101.5  (destination is a raw IP with no resolved name (IP-literal egress is unusual for legitimate services); destination port 9001 is not a common egress service port)

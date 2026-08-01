@@ -1,0 +1,53 @@
+{
+  "daemon": {
+    "icc": false,
+    "log-level": "info",
+    "iptables": true,
+    "insecure-registries": [],
+    "storage-driver": "overlay2",
+    "userns-remap": "default",
+    "authorization-plugins": ["authz-broker"],
+    "log-driver": "syslog",
+    "live-restore": true,
+    "userland-proxy": false,
+    "experimental": false,
+    "no-new-privileges": true
+  },
+  "info": {
+    "server_version": "24.0.7",
+    "rootless": false,
+    "logging_driver": "syslog",
+    "storage_driver": "overlay2"
+  },
+  "files": [
+    {"path": "/etc/docker", "exists": true, "mode": "0755", "owner": "root", "group": "root"},
+    {"path": "/etc/docker/daemon.json", "exists": true, "mode": "0600", "owner": "root", "group": "root"},
+    {"path": "/var/run/docker.sock", "exists": true, "mode": "0660", "owner": "root", "group": "docker"}
+  ],
+  "containers": [
+    {
+      "name": "web",
+      "privileged": false,
+      "cap_drop": ["ALL"],
+      "cap_add": ["NET_BIND_SERVICE"],
+      "security_opt": ["no-new-privileges", "apparmor=docker-default"],
+      "pid_mode": "",
+      "ipc_mode": "private",
+      "uts_mode": "",
+      "network_mode": "bridge",
+      "readonly_rootfs": true,
+      "user": "1000",
+      "memory_limit": 536870912,
+      "pids_limit": 200,
+      "restart_policy": "on-failure",
+      "restart_max_retry": 5,
+      "healthcheck": true,
+      "mounts": [
+        {"source": "app-data", "destination": "/data", "rw": true}
+      ],
+      "port_bindings": [
+        {"host_ip": "127.0.0.1", "host_port": 8080, "container_port": 8080}
+      ]
+    }
+  ]
+}

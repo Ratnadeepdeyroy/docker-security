@@ -1,0 +1,191 @@
+{
+  "framework": "nist-800-190",
+  "version": "1.0",
+  "title": "NIST SP 800-190 — Application Container Security Guide",
+  "source_url": "https://csrc.nist.gov/publications/detail/sp/800-190/final",
+  "controls": [
+    {
+      "id": "4.1.1",
+      "title": "Image vulnerabilities — scan images for known CVEs",
+      "statement": "Images should be scanned for vulnerabilities and vulnerable images should not be deployed.",
+      "assessment": "automated",
+      "module": "vuln",
+      "check": "DS-RAT-VULN-000",
+      "expected": "no known vulnerabilities above the accepted threshold",
+      "remediation": "Rebuild from a patched base image or upgrade the affected packages; gate deployment on the scan result.",
+      "maps_to": {
+        "nist-800-53-r5": ["RA-5", "SI-2"],
+        "pci-dss-4.0.1": ["6.3.1", "6.3.3", "11.3.1"],
+        "soc2-2017": ["CC7.1"],
+        "cis-docker": ["4.4"]
+      },
+      "references": ["NIST SP 800-190 §4.1.1"]
+    },
+    {
+      "id": "4.1.2",
+      "title": "Image configuration defects — non-root, no baked secrets, healthcheck",
+      "statement": "Images should be built with secure configuration: run as non-root, contain no embedded secrets, and declare a healthcheck.",
+      "assessment": "automated",
+      "module": "imageaudit",
+      "check": "DS-RAT-IMG-001",
+      "expected": "image declares a non-root USER",
+      "remediation": "Add a non-root USER to the final stage of the image.",
+      "maps_to": {
+        "nist-800-53-r5": ["AC-6", "CM-6", "CM-7"],
+        "pci-dss-4.0.1": ["2.2.6", "7.2.5"],
+        "soc2-2017": ["CC6.1", "CC6.3"],
+        "cis-docker": ["4.1"]
+      },
+      "references": ["NIST SP 800-190 §4.1.2"]
+    },
+    {
+      "id": "4.1.3",
+      "title": "Embedded clear-text secrets in images",
+      "statement": "Secrets must not be stored within images; they should be delivered at runtime from a secrets manager.",
+      "assessment": "automated",
+      "module": "secrets",
+      "check": "DS-RAT-SEC-001",
+      "expected": "no clear-text credentials found in image layers or config",
+      "remediation": "Remove the secret, rotate it, and inject secrets at runtime via a secrets manager or BuildKit secret mount.",
+      "maps_to": {
+        "nist-800-53-r5": ["IA-5", "SC-28"],
+        "pci-dss-4.0.1": ["3.5.1", "8.3.2"],
+        "soc2-2017": ["CC6.1"],
+        "cis-docker": ["4.5"]
+      },
+      "references": ["NIST SP 800-190 §4.1.3"]
+    },
+    {
+      "id": "4.1.4",
+      "title": "Use of untrusted images — malware and known-bad content",
+      "statement": "Only trusted images should be used; images should be scanned for malware and known-bad binaries.",
+      "assessment": "automated",
+      "module": "malware",
+      "check": "DS-RAT-MAL-002",
+      "expected": "no cryptominer / web-shell / known-bad binaries present in any layer",
+      "remediation": "Rebuild from a trusted base; investigate provenance and rotate any exposed credentials.",
+      "maps_to": {
+        "nist-800-53-r5": ["SI-3", "SI-7"],
+        "pci-dss-4.0.1": ["5.2.1", "5.3.1"],
+        "soc2-2017": ["CC6.8"],
+        "cis-docker": ["4.4"]
+      },
+      "references": ["NIST SP 800-190 §4.1.4"]
+    },
+    {
+      "id": "4.1.5",
+      "title": "Software bill of materials — image inventory",
+      "statement": "Organizations should maintain an inventory of the software contained in each image.",
+      "assessment": "automated",
+      "module": "sbom",
+      "check": "DS-RAT-SBOM-001",
+      "present_means": "pass",
+      "expected": "an SBOM was generated for the image",
+      "remediation": "Generate and retain an SBOM for every image as a mandatory build step.",
+      "maps_to": {
+        "nist-800-53-r5": ["CM-8", "SR-4"],
+        "pci-dss-4.0.1": ["6.3.2"],
+        "soc2-2017": ["CC7.1"]
+      },
+      "references": ["NIST SP 800-190 §4.1.5", "EO 14028"]
+    },
+    {
+      "id": "4.1.6",
+      "title": "Image license governance",
+      "statement": "Image components should be reviewed for license obligations that conflict with distribution.",
+      "assessment": "automated",
+      "module": "license",
+      "check": "DS-RAT-LIC-001",
+      "expected": "no components carry a disallowed license",
+      "remediation": "Replace disallowed-license components or record a reviewed waiver.",
+      "maps_to": {
+        "nist-800-53-r5": ["SR-4"],
+        "soc2-2017": ["CC1.4"]
+      },
+      "references": ["NIST SP 800-190 §4.1.6"]
+    },
+    {
+      "id": "4.2.1",
+      "title": "Registry — insecure connections and untrusted sources",
+      "statement": "Connections to registries should be secure and images should be pulled only from trusted registries by immutable digest.",
+      "assessment": "automated",
+      "module": "registry",
+      "check": "DS-RAT-REG-001",
+      "expected": "images are pinned by immutable digest, not a mutable tag",
+      "remediation": "Pin images by sha256 digest and restrict pulls to an allowlist of trusted registries.",
+      "maps_to": {
+        "nist-800-53-r5": ["CM-14", "SC-8", "SR-3"],
+        "pci-dss-4.0.1": ["6.3.2"],
+        "soc2-2017": ["CC6.1"],
+        "cis-docker": ["4.4"]
+      },
+      "references": ["NIST SP 800-190 §4.2.1"]
+    },
+    {
+      "id": "4.3.1",
+      "title": "Orchestrator — unbounded administrative access (RBAC least privilege)",
+      "statement": "Access to the orchestrator should be least-privilege; over-permissioned identities are a primary escalation path.",
+      "assessment": "automated",
+      "module": "rbac",
+      "check": "DS-RAT-RBAC-001",
+      "expected": "no subject holds cluster-admin / wildcard / escalate-class permissions unnecessarily",
+      "remediation": "Scope Roles to the exact verbs and resources needed; remove wildcard and escalate/bind/impersonate grants.",
+      "maps_to": {
+        "nist-800-53-r5": ["AC-2", "AC-6"],
+        "pci-dss-4.0.1": ["7.2.1", "7.2.2"],
+        "soc2-2017": ["CC6.1", "CC6.3"]
+      },
+      "references": ["NIST SP 800-190 §4.3.1"]
+    },
+    {
+      "id": "4.4.1",
+      "title": "Container runtime — insecure configuration and isolation",
+      "statement": "Containers should run with least privilege: no privileged mode, dropped capabilities, read-only root filesystem, and a seccomp profile.",
+      "assessment": "automated",
+      "module": "harden",
+      "check": "DS-RAT-BOX-001",
+      "expected": "container is not privileged and drops unnecessary capabilities",
+      "remediation": "Drop ALL capabilities and add back only those required; disable privileged mode; apply seccomp RuntimeDefault.",
+      "maps_to": {
+        "nist-800-53-r5": ["AC-6", "CM-7", "SC-39"],
+        "pci-dss-4.0.1": ["2.2.1", "2.2.6"],
+        "soc2-2017": ["CC6.1"],
+        "cis-docker": ["5.3", "5.12", "5.25"]
+      },
+      "references": ["NIST SP 800-190 §4.4.1"]
+    },
+    {
+      "id": "4.4.2",
+      "title": "Container runtime — unbounded network access from containers",
+      "statement": "Egress from containers should be restricted to only the destinations required.",
+      "assessment": "automated",
+      "module": "netpolicy",
+      "check": "DS-RAT-NET-001",
+      "expected": "a default-deny egress posture with an explicit allowlist",
+      "remediation": "Apply a default-deny egress NetworkPolicy and allowlist only required destinations.",
+      "maps_to": {
+        "nist-800-53-r5": ["AC-4", "SC-7"],
+        "pci-dss-4.0.1": ["1.3.1", "1.4.1"],
+        "soc2-2017": ["CC6.6"]
+      },
+      "references": ["NIST SP 800-190 §4.4.2"]
+    },
+    {
+      "id": "4.5.2",
+      "title": "Host OS — large attack surface / shared kernel",
+      "statement": "Container host operating systems should be hardened and their attack surface minimized per the CIS Docker host benchmark.",
+      "assessment": "hybrid",
+      "module": "dockerbench",
+      "check": "DS-RAT-CIS-NARRATIVE",
+      "expected": "host and daemon configuration pass the CIS Docker host controls",
+      "remediation": "Apply the CIS Docker host and daemon hardening controls; run the daemon rootless where possible.",
+      "maps_to": {
+        "nist-800-53-r5": ["CM-6", "CM-7", "SC-39"],
+        "pci-dss-4.0.1": ["2.2.1"],
+        "soc2-2017": ["CC6.1"],
+        "cis-docker": ["1.1", "2.1"]
+      },
+      "references": ["NIST SP 800-190 §4.5.2"]
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>docker-security — dashboard</title>
+<style>
+  :root {
+    --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+    --accent:#2f81f7;
+    --crit:#f85149; --high:#ff7b72; --med:#d29922; --low:#58a6ff; --info:#8b949e;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+    font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  header { padding:18px 24px; border-bottom:1px solid var(--border);
+    display:flex; align-items:baseline; gap:12px; }
+  header h1 { margin:0; font-size:20px; letter-spacing:.5px; }
+  header .tag { color:var(--muted); font-size:12px; }
+  .wrap { display:grid; grid-template-columns:380px 1fr; gap:20px; padding:20px 24px; }
+  @media (max-width:900px){ .wrap{ grid-template-columns:1fr; } }
+  .panel { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:16px; }
+  .panel h2 { margin:0 0 12px; font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+  label { display:block; font-size:12px; color:var(--muted); margin:10px 0 4px; }
+  textarea, input[type=text] { width:100%; background:var(--bg); color:var(--fg);
+    border:1px solid var(--border); border-radius:6px; padding:8px; font:inherit; }
+  textarea { min-height:220px; resize:vertical; }
+  .modules { display:flex; flex-wrap:wrap; gap:8px; }
+  .modules label { display:inline-flex; align-items:center; gap:6px; margin:0;
+    background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:4px 8px; color:var(--fg); }
+  button { margin-top:14px; width:100%; background:var(--accent); color:#fff; border:0;
+    border-radius:6px; padding:10px; font:inherit; font-weight:600; cursor:pointer; }
+  button:disabled { opacity:.6; cursor:default; }
+  .badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .badge { border:1px solid var(--border); border-radius:20px; padding:3px 12px; font-size:12px; }
+  .b-total { background:#21262d; }
+  .b-CRITICAL{ color:var(--crit); border-color:var(--crit); }
+  .b-HIGH{ color:var(--high); border-color:var(--high); }
+  .b-MEDIUM{ color:var(--med); border-color:var(--med); }
+  .b-LOW{ color:var(--low); border-color:var(--low); }
+  .b-INFO{ color:var(--info); }
+  table { width:100%; border-collapse:collapse; }
+  th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .sev { font-weight:700; }
+  .sev.CRITICAL{ color:var(--crit);} .sev.HIGH{ color:var(--high);} .sev.MEDIUM{ color:var(--med);}
+  .sev.LOW{ color:var(--low);} .sev.INFO{ color:var(--info);}
+  .rule { color:var(--accent); }
+  .rem { color:var(--muted); font-size:12px; margin-top:2px; }
+  .empty { color:var(--muted); padding:20px 0; }
+  .err { color:var(--crit); }
+</style>
+</head>
+<body>
+<header>
+  <h1>docker-security</h1>
+  <span class="tag">unified container-security tool · web dashboard</span>
+</header>
+
+<div class="wrap">
+  <section class="panel">
+    <h2>Scan a Dockerfile</h2>
+    <label for="name">Target name</label>
+    <input id="name" type="text" value="Dockerfile">
+    <label for="content">Dockerfile content</label>
+    <textarea id="content" spellcheck="false">FROM ubuntu:latest
+ENV DB_PASSWORD=hunter2
+RUN apt-get update && apt-get install -y curl
+RUN curl https://get.example.com/install.sh | bash
+ADD https://example.com/app.tar.gz /opt/app
+CMD ["/opt/app/server"]</textarea>
+    <label>Modules</label>
+    <div id="modules" class="modules"><span class="empty">loading…</span></div>
+    <button id="scan">Scan</button>
+    <div id="formErr" class="err"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Results</h2>
+    <div id="badges" class="badges"></div>
+    <div id="results"><div class="empty">Run a scan to see findings.</div></div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+async function loadModules() {
+  try {
+    const res = await fetch("/v1/modules");
+    const mods = await res.json();
+    const box = $("modules");
+    box.innerHTML = "";
+    (mods || []).forEach(m => {
+      const l = document.createElement("label");
+      l.title = m.description;
+      l.innerHTML = `<input type="checkbox" value="${m.name}" checked> ${m.name}`;
+      box.appendChild(l);
+    });
+    if (!mods || !mods.length) box.innerHTML = '<span class="empty">no modules</span>';
+  } catch (e) {
+    $("modules").innerHTML = '<span class="err">failed to load modules</span>';
+  }
+}
+
+function selectedModules() {
+  return [...document.querySelectorAll("#modules input:checked")].map(i => i.value);
+}
+
+function renderBadges(counts, total) {
+  const order = ["CRITICAL","HIGH","MEDIUM","LOW","INFO"];
+  let html = `<span class="badge b-total">${total} findings</span>`;
+  order.forEach(s => { html += `<span class="badge b-${s}">${s.toLowerCase()}: ${counts[s]||0}</span>`; });
+  $("badges").innerHTML = html;
+}
+
+function countBySeverity(findings) {
+  const c = {};
+  findings.forEach(f => { c[f.severity] = (c[f.severity]||0) + 1; });
+  return c;
+}
+
+function renderResults(report) {
+  const findings = report.findings || [];
+  renderBadges(countBySeverity(findings), findings.length);
+  if (!findings.length) {
+    $("results").innerHTML = '<div class="empty">No findings. 🎉</div>';
+    return;
+  }
+  let rows = "";
+  findings.forEach(f => {
+    const loc = f.location && f.location.start_line
+      ? `${f.location.path}:${f.location.start_line}` : (f.resource || "");
+    rows += `<tr>
+      <td class="sev ${f.severity}">${f.severity}</td>
+      <td class="rule">${f.rule_id}</td>
+      <td>${loc}</td>
+      <td>${escapeHtml(f.title)}${f.remediation ? `<div class="rem">${escapeHtml(f.remediation)}</div>` : ""}</td>
+    </tr>`;
+  });
+  $("results").innerHTML =
+    `<table><thead><tr><th>Severity</th><th>Rule</th><th>Location</th><th>Issue</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function escapeHtml(s){ return (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function scan() {
+  const btn = $("scan"); btn.disabled = true; $("formErr").textContent = "";
+  try {
+    const res = await fetch("/v1/scan", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        type: "dockerfile",
+        location: $("name").value || "Dockerfile",
+        content: $("content").value,
+        modules: selectedModules(),
+        format: "json"
+      })
+    });
+    if (!res.ok) throw new Error("scan failed: " + res.status);
+    renderResults(await res.json());
+  } catch (e) {
+    $("formErr").textContent = e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$("scan").addEventListener("click", scan);
+loadModules();
+</script>
+</body>
+</html>

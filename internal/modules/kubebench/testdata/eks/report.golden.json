@@ -1,0 +1,743 @@
+{
+  "benchmark": "CIS Kubernetes Benchmark",
+  "version": "1.9.0",
+  "profile": "eks",
+  "results": [
+    {
+      "control": {
+        "id": "1.1.1",
+        "title": "Ensure the API server pod specification file permissions are 600 or more restrictive",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "A world-readable/writable static-pod manifest lets a node-local user read secrets or alter how the API server starts.",
+        "remediation": "chmod 600 /etc/kubernetes/manifests/kube-apiserver.yaml",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Pod-Security"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.1.2",
+        "title": "Ensure the API server pod specification file ownership is set to root:root",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "Incorrect ownership of the manifest allows tampering with control-plane startup.",
+        "remediation": "chown root:root /etc/kubernetes/manifests/kube-apiserver.yaml",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Pod-Security"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.1",
+        "title": "Ensure the --anonymous-auth argument is set to false",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "Anonymous requests to the API server bypass authentication entirely.",
+        "remediation": "Set --anonymous-auth=false on the kube-apiserver.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-2"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authentication"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.2",
+        "title": "Ensure the --token-auth-file parameter is not set",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "Static token files are long-lived, unrotatable bearer credentials; prefer short-lived, pluggable auth.",
+        "remediation": "Remove --token-auth-file and use OIDC/webhook or client-cert auth.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-5"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authentication"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.6",
+        "title": "Ensure the --authorization-mode argument is not set to AlwaysAllow",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "AlwaysAllow disables authorization, granting every authenticated caller full access.",
+        "remediation": "Set --authorization-mode to Node,RBAC (never AlwaysAllow).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authorization"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.7",
+        "title": "Ensure the --authorization-mode argument includes Node",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "The Node authorizer restricts what kubelets can read/write to only their own node's objects.",
+        "remediation": "Include Node in --authorization-mode.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authorization"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.8",
+        "title": "Ensure the --authorization-mode argument includes RBAC",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "RBAC is the baseline for least-privilege authorization in Kubernetes.",
+        "remediation": "Include RBAC in --authorization-mode.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authorization"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.11",
+        "title": "Ensure the admission control plugin AlwaysAdmit is not set",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "AlwaysAdmit admits every request, defeating admission-time policy enforcement.",
+        "remediation": "Remove AlwaysAdmit from --enable-admission-plugins.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Pod-Security"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.16",
+        "title": "Ensure the admission control plugin NodeRestriction is set",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "NodeRestriction limits a compromised kubelet to modifying only its own node and pods.",
+        "remediation": "Add NodeRestriction to --enable-admission-plugins.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authorization"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.19",
+        "title": "Ensure the --profiling argument is set to false",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "The profiling endpoint exposes sensitive runtime detail and widens the attack surface.",
+        "remediation": "Set --profiling=false on the kube-apiserver.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-7"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Audit-Logging"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.22",
+        "title": "Ensure the --audit-log-path argument is set",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "Without an audit log there is no record of who did what — required by most frameworks.",
+        "remediation": "Set --audit-log-path (and retention/rotation flags) on the kube-apiserver.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AU-2"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Audit-Logging"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "1.2.31",
+        "title": "Ensure the --encryption-provider-config argument is set",
+        "section": "Control Plane",
+        "level": "L1",
+        "scored": true,
+        "description": "Without encryption-at-rest configuration, Secrets are stored in etcd in plaintext.",
+        "remediation": "Set --encryption-provider-config and enable a kms/aescbc provider.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-28"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Secrets"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "Control Plane controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "2.1",
+        "title": "Ensure the --cert-file and --key-file arguments are set for etcd",
+        "section": "etcd",
+        "level": "L1",
+        "scored": true,
+        "description": "Without server TLS, etcd — which stores all cluster state including Secrets — accepts plaintext connections.",
+        "remediation": "Configure etcd with --cert-file and --key-file.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-8"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Encryption"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "etcd controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "2.2",
+        "title": "Ensure the --client-cert-auth argument is set to true for etcd",
+        "section": "etcd",
+        "level": "L1",
+        "scored": true,
+        "description": "Without client certificate auth, any client that reaches etcd can read/modify all cluster state.",
+        "remediation": "Set --client-cert-auth=true on etcd.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-2"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authentication"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "etcd controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "2.3",
+        "title": "Ensure the --auto-tls argument is not set to true for etcd",
+        "section": "etcd",
+        "level": "L1",
+        "scored": true,
+        "description": "auto-tls makes etcd generate self-signed certs and accept them, undermining mutual authentication.",
+        "remediation": "Do not set --auto-tls=true; provision proper certificates.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-5"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Encryption"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "etcd controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "2.4",
+        "title": "Ensure the --peer-cert-file and --peer-key-file arguments are set for etcd",
+        "section": "etcd",
+        "level": "L1",
+        "scored": true,
+        "description": "Peer TLS protects replication traffic between etcd members from interception.",
+        "remediation": "Configure etcd with --peer-cert-file and --peer-key-file.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-8"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Encryption"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "etcd controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "2.5",
+        "title": "Ensure the --peer-client-cert-auth argument is set to true for etcd",
+        "section": "etcd",
+        "level": "L1",
+        "scored": true,
+        "description": "Without peer client-cert auth, a rogue peer can join and read/modify cluster state.",
+        "remediation": "Set --peer-client-cert-auth=true on etcd.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-2"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authentication"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "etcd controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "2.6",
+        "title": "Ensure the --peer-auto-tls argument is not set to true for etcd",
+        "section": "etcd",
+        "level": "L1",
+        "scored": true,
+        "description": "peer-auto-tls disables verification of peer identities.",
+        "remediation": "Do not set --peer-auto-tls=true.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-5"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Encryption"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "etcd controls are managed by the eks provider; not customer-scored"
+    },
+    {
+      "control": {
+        "id": "4.1.9",
+        "title": "Ensure the kubelet config file permissions are 600 or more restrictive",
+        "section": "Worker Node",
+        "level": "L1",
+        "scored": true,
+        "description": "A readable kubelet config can leak sensitive parameters; a writable one lets a local user weaken the node.",
+        "remediation": "chmod 600 /var/lib/kubelet/config.yaml",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Pod-Security"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "/var/lib/kubelet/config.yaml permissions 0600 within 0600"
+    },
+    {
+      "control": {
+        "id": "4.2.1",
+        "title": "Ensure the --anonymous-auth argument is set to false (kubelet)",
+        "section": "Worker Node",
+        "level": "L1",
+        "scored": true,
+        "description": "Anonymous access to the kubelet API allows unauthenticated command execution in pods.",
+        "remediation": "Set authentication.anonymous.enabled=false (or --anonymous-auth=false).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-2"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authentication"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "kubelet --anonymous-auth=false"
+    },
+    {
+      "control": {
+        "id": "4.2.2",
+        "title": "Ensure the --authorization-mode argument is not set to AlwaysAllow (kubelet)",
+        "section": "Worker Node",
+        "level": "L1",
+        "scored": true,
+        "description": "AlwaysAllow on the kubelet grants every caller full access to node/pod APIs.",
+        "remediation": "Set authorization.mode=Webhook (not AlwaysAllow).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authorization"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "kubelet authorization-mode is not AlwaysAllow"
+    },
+    {
+      "control": {
+        "id": "4.2.3",
+        "title": "Ensure the --client-ca-file argument is set (kubelet)",
+        "section": "Worker Node",
+        "level": "L1",
+        "scored": true,
+        "description": "Without a client CA the kubelet cannot verify API-server client certificates.",
+        "remediation": "Set authentication.x509.clientCAFile on the kubelet.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-5"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authentication"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "kubelet client CA file is configured"
+    },
+    {
+      "control": {
+        "id": "4.2.4",
+        "title": "Ensure the --read-only-port argument is set to 0",
+        "section": "Worker Node",
+        "level": "L1",
+        "scored": true,
+        "description": "The read-only port (10255) exposes pod and node data without authentication.",
+        "remediation": "Set --read-only-port=0 (or readOnlyPort: 0).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Network-Separation"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "kubelet read-only port is disabled"
+    },
+    {
+      "control": {
+        "id": "4.2.5",
+        "title": "Ensure the --streaming-connection-idle-timeout argument is not set to 0",
+        "section": "Worker Node",
+        "level": "L2",
+        "scored": true,
+        "description": "A zero idle timeout leaves exec/attach/port-forward streams open indefinitely, a resource-exhaustion vector.",
+        "remediation": "Set streamingConnectionIdleTimeout to a non-zero value (e.g. 5m).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-10"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Network-Separation"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "kubelet streaming connection idle timeout is non-zero"
+    },
+    {
+      "control": {
+        "id": "4.2.6",
+        "title": "Ensure the --make-iptables-util-chains argument is set to true",
+        "section": "Worker Node",
+        "level": "L1",
+        "scored": true,
+        "description": "Letting the kubelet manage iptables ensures the expected packet-filtering chains exist.",
+        "remediation": "Set makeIPTablesUtilChains: true (the default).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-7"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Network-Separation"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "kubelet manages iptables util chains (default)"
+    },
+    {
+      "control": {
+        "id": "4.2.9",
+        "title": "Ensure that the RotateKubeletServerCertificate argument is set to true",
+        "section": "Worker Node",
+        "level": "L2",
+        "scored": true,
+        "description": "Server certificate rotation limits the blast radius of a leaked kubelet serving cert.",
+        "remediation": "Enable RotateKubeletServerCertificate on the kubelet and controller-manager.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-5"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Encryption"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "kubelet server certificate rotation is enabled"
+    },
+    {
+      "control": {
+        "id": "5.1.1",
+        "title": "Ensure that the cluster-admin role is only used where required",
+        "section": "Policies",
+        "level": "L1",
+        "scored": true,
+        "description": "cluster-admin is unbounded superuser; broad or unnecessary bindings make one compromise total.",
+        "remediation": "Replace cluster-admin bindings with least-privilege roles; restrict to break-glass identities.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authorization"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "cluster-admin is bound only to system:masters"
+    },
+    {
+      "control": {
+        "id": "5.1.3",
+        "title": "Minimize wildcard use in Roles and ClusterRoles",
+        "section": "Policies",
+        "level": "L1",
+        "scored": true,
+        "description": "Wildcard verbs/resources/apiGroups grant blanket access that makes privilege escalation trivial.",
+        "remediation": "Enumerate the specific apiGroups/resources/verbs each role needs; remove '*'.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authorization"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "no wildcard permissions in collected roles"
+    },
+    {
+      "control": {
+        "id": "5.1.5",
+        "title": "Ensure that default service accounts are not actively used",
+        "section": "Policies",
+        "level": "L1",
+        "scored": true,
+        "description": "Workloads using the default SA (with token automount) get ambient credentials they rarely need.",
+        "remediation": "Set automountServiceAccountToken: false on default SAs and use per-workload SAs.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Authentication"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "default ServiceAccounts disable token automount"
+    },
+    {
+      "control": {
+        "id": "5.2.2",
+        "title": "Minimize the admission of privileged containers (Pod Security)",
+        "section": "Policies",
+        "level": "L1",
+        "scored": true,
+        "description": "Namespaces without an enforced baseline/restricted Pod Security level admit privileged pods.",
+        "remediation": "Enable Pod Security Admission and label namespaces enforce=baseline or restricted.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Pod-Security"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "all workload namespaces enforce baseline/restricted Pod Security"
+    },
+    {
+      "control": {
+        "id": "5.3.2",
+        "title": "Ensure that all namespaces have network policies defined",
+        "section": "Policies",
+        "level": "L2",
+        "scored": true,
+        "description": "Without a NetworkPolicy a namespace allows unrestricted pod-to-pod traffic (flat network).",
+        "remediation": "Define default-deny NetworkPolicies in every workload namespace.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-7"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Network-Separation"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "every workload namespace has at least one NetworkPolicy"
+    },
+    {
+      "control": {
+        "id": "5.7.4",
+        "title": "Ensure that the default namespace is not used for workloads",
+        "section": "Policies",
+        "level": "L2",
+        "scored": true,
+        "description": "Concentrating workloads in the default namespace defeats namespace-scoped policy and RBAC boundaries.",
+        "remediation": "Place workloads in dedicated namespaces with their own policies and quotas.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-4"
+          },
+          {
+            "framework": "NSA-CISA-K8s",
+            "id": "Network-Separation"
+          }
+        ]
+      },
+      "status": "PASS",
+      "evidence": "the default namespace is not used for workloads"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "version": "2026.07",
+  "ips": { "203.0.113.5": "known-c2/cobaltstrike" },
+  "domains": { "evil.example": "malware/dropper" },
+  "hashes": { "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": "miner/xmrig" }
+}

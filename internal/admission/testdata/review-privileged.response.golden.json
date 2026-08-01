@@ -1,0 +1,20 @@
+{
+  "apiVersion": "admission.k8s.io/v1",
+  "kind": "AdmissionReview",
+  "response": {
+    "uid": "req-privileged-001",
+    "allowed": false,
+    "status": {
+      "code": 403,
+      "message": "denied by docker-security policy (4 violation(s)):\n  - [no-privileged] docker.io/evil/app:latest: workload requests a privileged container\n    fix: Remove securityContext.privileged: true.\n  - [run-as-nonroot] docker.io/evil/app:latest: workload may run as root\n    fix: Set securityContext.runAsNonRoot: true and a non-zero runAsUser.\n  - [no-hostpath] docker.io/evil/app:latest: workload mounts a hostPath volume\n    fix: Remove the hostPath volume.\n  - [no-host-namespaces] docker.io/evil/app:latest: workload shares a host namespace\n    fix: Remove hostNetwork/hostPID/hostIPC.",
+      "reason": "Forbidden"
+    },
+    "warnings": [
+      "[digest-pinned] docker.io/evil/app:latest: image is not pinned to a digest"
+    ],
+    "auditAnnotations": {
+      "docker-security.policy/decision": "deny",
+      "docker-security.policy/explanation": "{\"policy\":\"admission-baseline\",\"decision\":\"deny\",\"summary\":\"DENY by policy \\\"admission-baseline\\\": 4 denial(s)\",\"denials\":[{\"rule_id\":\"no-privileged\",\"effect\":\"deny\",\"severity\":\"CRITICAL\",\"reason\":\"[docker.io/evil/app:latest] workload requests a privileged container\",\"condition\":\"workload_present \\u0026\\u0026 privileged\",\"facts\":{\"privileged\":\"true\",\"workload_present\":\"true\"},\"remediation\":\"Remove securityContext.privileged: true.\",\"references\":[\"PSS-baseline\",\"CIS-K8s-5.2.1\"]},{\"rule_id\":\"run-as-nonroot\",\"effect\":\"deny\",\"severity\":\"HIGH\",\"reason\":\"[docker.io/evil/app:latest] workload may run as root\",\"condition\":\"workload_present \\u0026\\u0026 runs_as_root\",\"facts\":{\"runs_as_root\":\"true\",\"workload_present\":\"true\"},\"remediation\":\"Set securityContext.runAsNonRoot: true and a non-zero runAsUser.\",\"references\":[\"PSS-restricted\"]},{\"rule_id\":\"no-hostpath\",\"effect\":\"deny\",\"severity\":\"HIGH\",\"reason\":\"[docker.io/evil/app:latest] workload mounts a hostPath volume\",\"condition\":\"workload_present \\u0026\\u0026 uses_host_path\",\"facts\":{\"uses_host_path\":\"true\",\"workload_present\":\"true\"},\"remediation\":\"Remove the hostPath volume.\"},{\"rule_id\":\"no-host-namespaces\",\"effect\":\"deny\",\"severity\":\"HIGH\",\"reason\":\"[docker.io/evil/app:latest] workload shares a host namespace\",\"condition\":\"workload_present \\u0026\\u0026 (host_network || host_pid || host_ipc)\",\"facts\":{\"host_ipc\":\"false\",\"host_network\":\"true\",\"host_pid\":\"false\",\"workload_present\":\"true\"},\"remediation\":\"Remove hostNetwork/hostPID/hostIPC.\"}],\"warnings\":[{\"rule_id\":\"digest-pinned\",\"effect\":\"warn\",\"severity\":\"LOW\",\"reason\":\"[docker.io/evil/app:latest] image is not pinned to a digest\",\"condition\":\"workload_present \\u0026\\u0026 !digest_pinned\",\"facts\":{\"digest_pinned\":\"false\",\"workload_present\":\"true\"},\"remediation\":\"Reference images by digest (name@sha256:...).\"}],\"remediation\":[\"Remove hostNetwork/hostPID/hostIPC.\",\"Remove securityContext.privileged: true.\",\"Remove the hostPath volume.\",\"Set securityContext.runAsNonRoot: true and a non-zero runAsUser.\"],\"evaluated_at\":\"2026-01-01T12:00:00Z\"}"
+    }
+  }
+}

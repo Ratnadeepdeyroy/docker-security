@@ -1,0 +1,23 @@
+{
+  "apiVersion": "admission.k8s.io/v1",
+  "kind": "AdmissionReview",
+  "request": {
+    "uid": "req-compliant-002",
+    "kind": { "group": "", "version": "v1", "kind": "Pod" },
+    "resource": { "group": "", "version": "v1", "resource": "pods" },
+    "name": "good-pod",
+    "namespace": "default",
+    "operation": "CREATE",
+    "object": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": { "name": "good-pod", "namespace": "default" },
+      "spec": {
+        "securityContext": { "runAsNonRoot": true, "runAsUser": 1000 },
+        "containers": [
+          { "name": "app", "image": "registry.internal.example.com/team/app@sha256:1111111111111111111111111111111111111111111111111111111111111111", "securityContext": { "allowPrivilegeEscalation": false, "readOnlyRootFilesystem": true, "runAsNonRoot": true } }
+        ]
+      }
+    }
+  }
+}

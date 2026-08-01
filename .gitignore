@@ -1,0 +1,38 @@
+# Build artifacts
+/bin/
+/dist/
+/dsecrat
+/dsecrat-runtime
+*.exe
+
+# NOTE: the generated eBPF bindings + object (internal/runtime/sensor_bpfel.go
+# and sensor_bpfel.o) ARE committed on purpose — sensor_bpfel.go embeds the .o
+# via go:embed, so the tree builds without clang/bpf2go. Do NOT add *.o here.
+
+# Local scan output / stores
+/.dsecrat-store/
+*.sarif
+*.cdx.json
+*.spdx.json
+
+# Local-only archive of research notes and build scaffolding (not published)
+/.archive/
+
+/docs/COMPLIANCE_PLAN.md
+/docs/features/runtime-competitive.md
+/docs/features/runtime-ebpf-proposal.md
+/docs/superpowers/
+
+# Root-level dashboard captures (local dev screenshots, not shipped)
+/dashboard-*.png
+/docs/screenshots/
+
+# Browser-automation capture cruft
+/.playwright-mcp/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+*~
+.trash/
+.superpowers/

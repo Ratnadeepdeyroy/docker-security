@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "name": "admission-baseline",
+  "description": "PSS-style admission gate: deny privileged/root/host-sharing/hostPath workloads; warn on unpinned images.",
+  "mode": "enforce",
+  "rules": [
+    { "id": "no-privileged", "match": "workload_present && privileged", "effect": "deny", "severity": "critical", "message": "workload requests a privileged container", "remediation": "Remove securityContext.privileged: true.", "references": ["PSS-baseline", "CIS-K8s-5.2.1"] },
+    { "id": "run-as-nonroot", "match": "workload_present && runs_as_root", "effect": "deny", "severity": "high", "message": "workload may run as root", "remediation": "Set securityContext.runAsNonRoot: true and a non-zero runAsUser.", "references": ["PSS-restricted"] },
+    { "id": "no-hostpath", "match": "workload_present && uses_host_path", "effect": "deny", "severity": "high", "message": "workload mounts a hostPath volume", "remediation": "Remove the hostPath volume." },
+    { "id": "no-host-namespaces", "match": "workload_present && (host_network || host_pid || host_ipc)", "effect": "deny", "severity": "high", "message": "workload shares a host namespace", "remediation": "Remove hostNetwork/hostPID/hostIPC." },
+    { "id": "digest-pinned", "match": "workload_present && !digest_pinned", "effect": "warn", "severity": "low", "message": "image is not pinned to a digest", "remediation": "Reference images by digest (name@sha256:...)." }
+  ]
+}

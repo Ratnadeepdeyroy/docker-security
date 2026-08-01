@@ -1,0 +1,23 @@
+[
+  {
+    "image": "api",
+    "version": "3.0.1",
+    "scan_id": "2bab5c8dfb88aead",
+    "recorded_at": "2026-01-01T00:00:00Z",
+    "owner": "team-a"
+  },
+  {
+    "image": "api",
+    "version": "3.0.7",
+    "scan_id": "eba704c221e8ad50",
+    "recorded_at": "2026-01-03T00:00:00Z",
+    "owner": "team-a"
+  },
+  {
+    "image": "web",
+    "version": "3.0.1",
+    "scan_id": "72083984bf4335d8",
+    "recorded_at": "2026-01-02T00:00:00Z",
+    "owner": "team-w"
+  }
+]

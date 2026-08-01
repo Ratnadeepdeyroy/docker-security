@@ -1,0 +1,11 @@
+{
+  "tool": "docker-security",
+  "target_type": "image",
+  "target": "docker.io/acme/api:1.4.2",
+  "generated_at": "2026-01-01T00:00:00Z",
+  "findings": [
+    { "rule_id": "DS-RAT-VULN-0001", "module": "vuln", "severity": "CRITICAL", "title": "CVE-2025-0001 in openssl", "resource": "pkg:deb/openssl@3.0.1", "metadata": { "cve": "CVE-2025-0001" } },
+    { "rule_id": "DS-RAT-SBOM-LICENSE", "module": "sbom", "severity": "INFO", "title": "GPL-3.0-only package", "resource": "pkg:pypi/somelib@2.0.0", "metadata": { "license": "GPL-3.0-only" } }
+  ],
+  "module_runs": [ { "module": "vuln" }, { "module": "sbom" } ]
+}

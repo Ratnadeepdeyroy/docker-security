@@ -1,0 +1,7 @@
+{
+  "name": "slow-plugin",
+  "description": "plugin that hangs past its timeout (timeout-enforcement test)",
+  "target_types": ["dockerfile"],
+  "exec": ["/bin/sh", "${dir}/slow.sh"],
+  "timeout_ms": 100
+}

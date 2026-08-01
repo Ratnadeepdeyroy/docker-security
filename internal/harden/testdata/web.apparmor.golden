@@ -1,0 +1,35 @@
+#include <tunables/global>
+
+profile web flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # --- always denied: escape & host-tampering surfaces ---
+  deny /var/run/docker.sock rwklx,
+  deny /run/docker.sock rwklx,
+  deny @{PROC}/sysrq-trigger rwklx,
+  deny @{PROC}/kcore rwklx,
+  deny @{PROC}/kmem rwklx,
+  deny @{PROC}/mem rwklx,
+  deny @{PROC}/sys/kernel/** wklx,
+  deny /sys/[^f]*/** wklx,
+  deny /sys/f[^s]*/** wklx,
+  deny /sys/firmware/** rwklx,
+  deny /etc/shadow rwklx,
+  deny /etc/gshadow rwklx,
+
+  # --- observed capabilities ---
+  capability net_bind_service,
+  capability setgid,
+  capability setuid,
+
+  # --- observed network use ---
+  network,
+
+  # --- observed file access ---
+  /app/config.yaml r,
+  /app/server ix,
+  /etc/ssl/certs/** r,
+  /tmp/** w,
+  /usr/bin/helper ix,
+  /var/log/app/** w,
+}

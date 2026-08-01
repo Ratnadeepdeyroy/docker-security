@@ -1,0 +1,31 @@
+{
+  "version": "1",
+  "name": "ci-gate",
+  "description": "Minimal shift-left gate used in module and command tests.",
+  "mode": "enforce",
+  "rules": [
+    {
+      "id": "require-signature",
+      "match": "!signed",
+      "effect": "deny",
+      "severity": "high",
+      "message": "image is not signed by a trusted key",
+      "remediation": "Sign the image: dsecrat sign --image <ref>"
+    },
+    {
+      "id": "no-critical-cves",
+      "match": "severity_count(\"critical\") > 0",
+      "effect": "deny",
+      "severity": "critical",
+      "message": "image has critical CVEs",
+      "remediation": "Upgrade affected packages to clear critical CVEs."
+    },
+    {
+      "id": "restricted-license",
+      "match": "has_license(\"GPL-3.0-only\")",
+      "effect": "warn",
+      "severity": "medium",
+      "message": "package under a restricted license"
+    }
+  ]
+}

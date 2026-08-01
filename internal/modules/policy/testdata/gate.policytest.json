@@ -1,0 +1,16 @@
+{
+  "policy": "gate.policy.json",
+  "cases": [
+    {
+      "name": "signed clean image admitted",
+      "input": { "attest": { "signed": true } },
+      "expect": "allow"
+    },
+    {
+      "name": "unsigned critical image denied",
+      "input": { "attest": { "signed": false }, "findings": [ { "rule_id": "c", "module": "vuln", "severity": "CRITICAL", "title": "c" } ] },
+      "expect": "deny",
+      "expect_firing": ["require-signature", "no-critical-cves"]
+    }
+  ]
+}

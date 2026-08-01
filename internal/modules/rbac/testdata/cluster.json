@@ -1,0 +1,38 @@
+{
+  "kind": "List",
+  "items": [
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "cluster-admin" },
+      "rules": [ { "apiGroups": ["*"], "resources": ["*"], "verbs": ["*"] } ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "ops-admin" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "ops", "namespace": "kube-system" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "cluster-admin" }
+    },
+    {
+      "kind": "Role",
+      "metadata": { "name": "secret-reader", "namespace": "payments" },
+      "rules": [ { "apiGroups": [""], "resources": ["secrets"], "verbs": ["get", "list"] } ]
+    },
+    {
+      "kind": "RoleBinding",
+      "metadata": { "name": "app-reads-secrets", "namespace": "payments" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "app", "namespace": "payments" } ],
+      "roleRef": { "kind": "Role", "name": "secret-reader" }
+    },
+    {
+      "kind": "Pod",
+      "metadata": { "name": "checkout", "namespace": "payments" },
+      "spec": { "serviceAccountName": "app", "containers": [ { "name": "checkout" } ] }
+    },
+    {
+      "kind": "DockerHost",
+      "metadata": { "name": "runner-1" },
+      "rootless": false,
+      "socketMounts": [ { "container": "buildkit", "path": "/var/run/docker.sock" } ]
+    }
+  ]
+}

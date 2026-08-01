@@ -1,0 +1,124 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "items": [
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "cluster-admin" },
+      "rules": [ { "apiGroups": ["*"], "resources": ["*"], "verbs": ["*"] } ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "alice-is-admin" },
+      "subjects": [ { "kind": "User", "name": "alice" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "cluster-admin" }
+    },
+    {
+      "kind": "Role",
+      "metadata": { "name": "secret-reader", "namespace": "app" },
+      "rules": [ { "apiGroups": [""], "resources": ["secrets"], "verbs": ["get", "list", "watch"] } ]
+    },
+    {
+      "kind": "RoleBinding",
+      "metadata": { "name": "reader-binding", "namespace": "app" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "reader", "namespace": "app" } ],
+      "roleRef": { "kind": "Role", "name": "secret-reader" }
+    },
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "binder" },
+      "rules": [ { "apiGroups": ["rbac.authorization.k8s.io"], "resources": ["clusterroles"], "verbs": ["bind"] } ]
+    },
+    {
+      "kind": "RoleBinding",
+      "metadata": { "name": "bot-can-bind", "namespace": "app" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "bot", "namespace": "app" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "binder" }
+    },
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "pod-manager" },
+      "rules": [
+        { "apiGroups": [""], "resources": ["pods"], "verbs": ["create", "delete"] },
+        { "apiGroups": [""], "resources": ["pods/exec"], "verbs": ["create"] }
+      ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "deployer-binding" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "deployer", "namespace": "ci" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "pod-manager" }
+    },
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "impersonator" },
+      "rules": [ { "apiGroups": [""], "resources": ["users"], "verbs": ["impersonate"] } ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "agent-impersonates" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "agent", "namespace": "infra" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "impersonator" }
+    },
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "csr-signer" },
+      "rules": [
+        { "apiGroups": ["certificates.k8s.io"], "resources": ["certificatesigningrequests"], "verbs": ["create"] },
+        { "apiGroups": ["certificates.k8s.io"], "resources": ["certificatesigningrequests/approval"], "verbs": ["update"] }
+      ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "signer-binding" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "signer", "namespace": "infra" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "csr-signer" }
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "everyone-view" },
+      "subjects": [ { "kind": "Group", "name": "system:authenticated" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "binder" }
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "ghost-binding" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "ghost", "namespace": "app" } ],
+      "roleRef": { "kind": "ClusterRole", "name": "does-not-exist" }
+    },
+    {
+      "kind": "ServiceAccount",
+      "metadata": { "name": "reader", "namespace": "app" },
+      "lastUsedUnix": 1000000
+    },
+    {
+      "kind": "ServiceAccount",
+      "metadata": { "name": "agent", "namespace": "infra" },
+      "automountServiceAccountToken": true,
+      "lastUsedUnix": 1000000
+    },
+    {
+      "kind": "Pod",
+      "metadata": { "name": "web", "namespace": "app" },
+      "spec": {
+        "serviceAccountName": "reader",
+        "containers": [ { "name": "web" } ]
+      }
+    },
+    {
+      "kind": "Pod",
+      "metadata": { "name": "legacy", "namespace": "app" },
+      "spec": {
+        "containers": [ { "name": "legacy", "securityContext": { "privileged": true } } ],
+        "volumes": [ { "hostPath": { "path": "/" } } ]
+      }
+    },
+    {
+      "kind": "DockerHost",
+      "metadata": { "name": "build-01" },
+      "dockerGroupMembers": ["ci"],
+      "rootless": false,
+      "socketMounts": [ { "container": "jenkins", "path": "/var/run/docker.sock" } ]
+    }
+  ]
+}

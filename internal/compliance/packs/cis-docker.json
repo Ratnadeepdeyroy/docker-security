@@ -1,0 +1,101 @@
+{
+  "framework": "cis-docker",
+  "version": "1.6.0",
+  "title": "CIS Docker Benchmark",
+  "source_url": "https://www.cisecurity.org/benchmark/docker",
+  "controls": [
+    {
+      "id": "4.1",
+      "title": "Create a user for the container (do not run as root)",
+      "level": 1,
+      "assessment": "automated",
+      "module": "imageaudit",
+      "check": "DS-RAT-IMG-001",
+      "expected": "image declares a non-root USER",
+      "remediation": "Add a non-root USER instruction to the image.",
+      "maps_to": {
+        "nist-800-53-r5": ["AC-6", "CM-7"],
+        "nist-800-190": ["4.5.1"],
+        "pci-dss-4.0.1": ["2.2.6", "7.2.5"],
+        "iso-27001-2022": ["A.8.2", "A.8.4"]
+      },
+      "references": ["CIS Docker 4.1"]
+    },
+    {
+      "id": "4.5",
+      "title": "Do not store secrets in Dockerfiles / image config",
+      "level": 1,
+      "assessment": "automated",
+      "module": "imageaudit",
+      "check": "DS-RAT-IMG-003",
+      "expected": "no secret-looking ENV baked into the image",
+      "remediation": "Inject secrets at runtime; never bake them into layers/config.",
+      "maps_to": {
+        "nist-800-53-r5": ["IA-5", "SC-28"],
+        "pci-dss-4.0.1": ["3.5.1", "8.3.2"],
+        "iso-27001-2022": ["A.5.17", "A.8.24"]
+      },
+      "references": ["CIS Docker 4.5"]
+    },
+    {
+      "id": "4.6",
+      "title": "Add a HEALTHCHECK instruction to the container image",
+      "level": 1,
+      "assessment": "automated",
+      "module": "imageaudit",
+      "check": "DS-RAT-IMG-002",
+      "expected": "image defines a HEALTHCHECK",
+      "remediation": "Add a HEALTHCHECK to the image so orchestrators detect unhealthy containers.",
+      "maps_to": {
+        "nist-800-53-r5": ["SI-4"],
+        "iso-27001-2022": ["A.8.16"]
+      },
+      "references": ["CIS Docker 4.6"]
+    },
+    {
+      "id": "5.7",
+      "title": "Do not expose management/SSH ports from the image",
+      "level": 1,
+      "assessment": "automated",
+      "module": "imageaudit",
+      "check": "DS-RAT-IMG-006",
+      "expected": "no SSH / management port exposed by the image",
+      "remediation": "Remove EXPOSE for SSH/management ports; use an out-of-band admin path.",
+      "maps_to": {
+        "nist-800-53-r5": ["CM-7", "SC-7"],
+        "pci-dss-4.0.1": ["1.3.1", "2.2.6"],
+        "iso-27001-2022": ["A.8.20", "A.8.22"]
+      },
+      "references": ["CIS Docker 5.7"]
+    },
+    {
+      "id": "2.6",
+      "title": "Configure TLS authentication for the Docker daemon socket",
+      "level": 1,
+      "assessment": "automated",
+      "module": "dockerbench",
+      "check": "DS-RAT-CIS-DOCKER-2.6",
+      "expected": "daemon requires TLS client auth (no plaintext remote API)",
+      "remediation": "Enable --tlsverify with a CA; never expose the API without TLS.",
+      "maps_to": {
+        "nist-800-53-r5": ["SC-8", "IA-2"],
+        "pci-dss-4.0.1": ["4.2.1", "8.3"],
+        "iso-27001-2022": ["A.8.24", "A.5.14"]
+      },
+      "references": ["CIS Docker 2.6"]
+    },
+    {
+      "id": "1.1.1",
+      "title": "Ensure a separate partition for containers has been created",
+      "level": 1,
+      "assessment": "manual",
+      "expected": "host provisions /var/lib/docker on its own partition",
+      "remediation": "Provision /var/lib/docker on a dedicated partition; attest the host build.",
+      "maps_to": {
+        "nist-800-53-r5": ["SC-6"],
+        "iso-27001-2022": ["A.8.6"]
+      },
+      "references": ["CIS Docker 1.1.1"]
+    }
+  ]
+}

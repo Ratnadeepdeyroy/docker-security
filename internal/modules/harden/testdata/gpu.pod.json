@@ -1,0 +1,23 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": { "name": "trainer" },
+  "spec": {
+    "containers": [
+      {
+        "name": "train",
+        "image": "acme/ml:cuda12",
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 1000,
+          "readOnlyRootFilesystem": true,
+          "allowPrivilegeEscalation": false,
+          "capabilities": { "drop": ["ALL"] },
+          "seccompProfile": { "type": "RuntimeDefault" }
+        },
+        "resources": { "limits": { "memory": "16Gi" } },
+        "env": [{ "name": "NVIDIA_VISIBLE_DEVICES", "value": "all" }]
+      }
+    ]
+  }
+}

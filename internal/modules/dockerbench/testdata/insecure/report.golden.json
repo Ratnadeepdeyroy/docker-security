@@ -1,0 +1,1138 @@
+{
+  "benchmark": "CIS Docker Benchmark",
+  "version": "1.6.0",
+  "profile": "self-managed",
+  "results": [
+    {
+      "control": {
+        "id": "1.2.1",
+        "title": "Ensure the container host has been hardened",
+        "section": "Host Configuration",
+        "level": "L1",
+        "scored": false,
+        "description": "The underlying host OS should follow an established hardening baseline; a soft host undermines every daemon-level control above it.",
+        "remediation": "Apply a host hardening baseline (CIS OS benchmark / DISA STIG) and record attestation.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000516"
+          }
+        ]
+      },
+      "status": "INFO",
+      "evidence": "manual control; no automated check"
+    },
+    {
+      "control": {
+        "id": "2.1",
+        "title": "Restrict network traffic between containers on the default bridge",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "With inter-container communication (icc) enabled, every container on the default bridge can reach every other, so one compromise sees the rest.",
+        "remediation": "Set \"icc\": false in daemon.json and define explicit networks for containers that must talk.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-7"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000038"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"icc\": false",
+          "dry_run": "disable inter-container comms on default bridge; restart dockerd"
+        }
+      },
+      "status": "WARN",
+      "evidence": "inter-container communication is not disabled (icc defaults to true)",
+      "actual": "icc=false"
+    },
+    {
+      "control": {
+        "id": "2.2",
+        "title": "Set the logging level to 'info'",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "Running the daemon at debug level leaks verbose operational detail and bloats logs; 'info' is the recommended production level.",
+        "remediation": "Remove any \"log-level\" override or set \"log-level\": \"info\" in daemon.json.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.2"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AU-2"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000089"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"log-level\": \"info\"",
+          "dry_run": "set daemon log level to info"
+        }
+      },
+      "status": "WARN",
+      "evidence": "log level is \"debug\", not 'info'",
+      "actual": "debug"
+    },
+    {
+      "control": {
+        "id": "2.3",
+        "title": "Allow Docker to make changes to iptables",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "Disabling iptables management (\"iptables\": false) leaves container network isolation to hand-maintained rules that drift and fail open.",
+        "remediation": "Do not set \"iptables\": false; let the daemon manage the firewall rules.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-7"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000038"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "\"iptables\": false disables daemon-managed firewall rules",
+      "actual": "iptables=false"
+    },
+    {
+      "control": {
+        "id": "2.4",
+        "title": "Do not use insecure registries",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "Insecure registries are contacted over plaintext without certificate validation, exposing images to tampering and MITM.",
+        "remediation": "Remove all entries from \"insecure-registries\" and use TLS-secured registries only.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.2.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-8"
+          },
+          {
+            "framework": "PCI-DSS-4.0",
+            "id": "4.2.1"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"insecure-registries\": []",
+          "dry_run": "clear insecure-registries list"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "insecure (plaintext) registries are configured",
+      "actual": "10.0.0.5:5000"
+    },
+    {
+      "control": {
+        "id": "2.5",
+        "title": "Do not use the aufs storage driver",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "aufs is deprecated, unmaintained, and not in the mainline kernel; it is a stability and security liability.",
+        "remediation": "Use overlay2 (or another supported driver): set \"storage-driver\": \"overlay2\".",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-7"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000141"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "deprecated aufs storage driver in use",
+      "actual": "aufs"
+    },
+    {
+      "control": {
+        "id": "2.6",
+        "title": "Configure TLS authentication for the Docker daemon socket",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "A daemon listening on a TCP socket without mutual TLS lets anyone who can reach the port drive Docker as root.",
+        "remediation": "When exposing a tcp:// host, set \"tlsverify\": true with \"tlscacert\"/\"tlscert\"/\"tlskey\".",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "IA-5"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000033"
+          },
+          {
+            "framework": "PCI-DSS-4.0",
+            "id": "2.2.5"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "daemon exposed over TCP without complete mutual-TLS configuration",
+      "actual": "tcp://0.0.0.0:2375,unix:///var/run/docker.sock"
+    },
+    {
+      "control": {
+        "id": "2.8",
+        "title": "Enable user namespace support",
+        "section": "Docker Daemon Configuration",
+        "level": "L2",
+        "scored": true,
+        "description": "userns-remap maps container root to an unprivileged host UID, so a container escape does not land as host root.",
+        "remediation": "Set \"userns-remap\": \"default\" (and provision subordinate UID/GID ranges).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"userns-remap\": \"default\"",
+          "dry_run": "enable user-namespace remapping"
+        }
+      },
+      "status": "WARN",
+      "evidence": "user-namespace remapping is not enabled",
+      "actual": "userns-remap unset"
+    },
+    {
+      "control": {
+        "id": "2.11",
+        "title": "Ensure authorization for Docker client commands is enabled",
+        "section": "Docker Daemon Configuration",
+        "level": "L2",
+        "scored": true,
+        "description": "Without an authorization plugin, any client that reaches the daemon has full, unaudited control.",
+        "remediation": "Deploy an authz plugin and set \"authorization-plugins\": [\"\u003cplugin\u003e\"] in daemon.json.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000033"
+          }
+        ]
+      },
+      "status": "WARN",
+      "evidence": "no authorization plugin; every client has full daemon control",
+      "actual": "authorization-plugins unset"
+    },
+    {
+      "control": {
+        "id": "2.12",
+        "title": "Configure centralized and remote logging",
+        "section": "Docker Daemon Configuration",
+        "level": "L2",
+        "scored": true,
+        "description": "Local json-file logs are lost when a host is compromised or recycled; ship logs off-box for tamper-evident retention.",
+        "remediation": "Set a remote \"log-driver\" (e.g. \"syslog\", \"fluentd\") with a \"log-opts\" destination.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.2"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AU-4"
+          },
+          {
+            "framework": "PCI-DSS-4.0",
+            "id": "10.5.4"
+          }
+        ]
+      },
+      "status": "WARN",
+      "evidence": "logs are stored locally only; configure centralized/remote logging",
+      "actual": "json-file"
+    },
+    {
+      "control": {
+        "id": "2.13",
+        "title": "Ensure live restore is enabled",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "Without live-restore, a daemon restart kills running containers, tempting operators toward risky availability workarounds.",
+        "remediation": "Set \"live-restore\": true in daemon.json.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CP-10"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000516"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"live-restore\": true",
+          "dry_run": "keep containers running across daemon restarts"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "live-restore is disabled; a daemon restart will kill running containers",
+      "actual": "live-restore=false"
+    },
+    {
+      "control": {
+        "id": "2.14",
+        "title": "Ensure the userland proxy is disabled",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "The userland proxy adds an unnecessary, occasionally-vulnerable data path; hairpin NAT via iptables is preferred.",
+        "remediation": "Set \"userland-proxy\": false in daemon.json.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-7"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000141"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"userland-proxy\": false",
+          "dry_run": "disable the docker-proxy userland hop"
+        }
+      },
+      "status": "WARN",
+      "evidence": "userland proxy is enabled (unnecessary data path)",
+      "actual": "userland-proxy=true"
+    },
+    {
+      "control": {
+        "id": "2.15",
+        "title": "Ensure a daemon-wide custom seccomp profile is not disabled",
+        "section": "Docker Daemon Configuration",
+        "level": "L2",
+        "scored": true,
+        "description": "Setting \"seccomp-profile\": \"unconfined\" (or equivalent) strips syscall filtering from every container by default.",
+        "remediation": "Remove any daemon-level seccomp=unconfined; keep the built-in profile or supply a hardened one.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-39"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "daemon-wide seccomp profile is set to unconfined",
+      "actual": "unconfined"
+    },
+    {
+      "control": {
+        "id": "2.16",
+        "title": "Ensure experimental features are not enabled in production",
+        "section": "Docker Daemon Configuration",
+        "level": "L1",
+        "scored": true,
+        "description": "Experimental features are unstable and may lack security review; they should not run in production.",
+        "remediation": "Set \"experimental\": false (or omit it) in daemon.json.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-7"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000141"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"experimental\": false",
+          "dry_run": "disable experimental daemon features"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "experimental daemon features are enabled",
+      "actual": "experimental=true"
+    },
+    {
+      "control": {
+        "id": "2.17",
+        "title": "Ensure containers are restricted from acquiring new privileges by default",
+        "section": "Docker Daemon Configuration",
+        "level": "L2",
+        "scored": true,
+        "description": "no-new-privileges blocks setuid/setgid privilege escalation inside containers; setting it daemon-wide makes it the default.",
+        "remediation": "Set \"no-new-privileges\": true in daemon.json.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.2"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ],
+        "fix": {
+          "kind": "daemon.json",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "\"no-new-privileges\": true",
+          "dry_run": "block privilege escalation for all containers"
+        }
+      },
+      "status": "WARN",
+      "evidence": "containers may acquire new privileges by default",
+      "actual": "no-new-privileges unset"
+    },
+    {
+      "control": {
+        "id": "3.5",
+        "title": "Ensure that the /etc/docker directory ownership is set to root:root",
+        "section": "Docker Daemon Configuration Files",
+        "level": "L1",
+        "scored": true,
+        "description": "Non-root ownership of /etc/docker lets an unprivileged user tamper with daemon configuration.",
+        "remediation": "chown root:root /etc/docker",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000516"
+          }
+        ],
+        "fix": {
+          "kind": "file-perm",
+          "target": "/etc/docker",
+          "snippet": "chown root:root /etc/docker",
+          "dry_run": "set /etc/docker owner to root:root"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "/etc/docker should be owned by root:root",
+      "actual": "app:app"
+    },
+    {
+      "control": {
+        "id": "3.6",
+        "title": "Ensure that the /etc/docker directory permissions are set to 755 or more restrictive",
+        "section": "Docker Daemon Configuration Files",
+        "level": "L1",
+        "scored": true,
+        "description": "World-writable configuration directories allow tampering with daemon settings.",
+        "remediation": "chmod 755 /etc/docker",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000516"
+          }
+        ],
+        "fix": {
+          "kind": "file-perm",
+          "target": "/etc/docker",
+          "snippet": "chmod 755 /etc/docker",
+          "dry_run": "restrict /etc/docker to 0755"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "/etc/docker permissions 0777 are looser than 0755",
+      "actual": "0777"
+    },
+    {
+      "control": {
+        "id": "3.15",
+        "title": "Ensure that the Docker socket file ownership is set to root:docker",
+        "section": "Docker Daemon Configuration Files",
+        "level": "L1",
+        "scored": true,
+        "description": "The Docker socket is root-equivalent; incorrect ownership widens who can drive the daemon.",
+        "remediation": "chown root:docker /var/run/docker.sock",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000033"
+          }
+        ],
+        "fix": {
+          "kind": "file-perm",
+          "target": "/var/run/docker.sock",
+          "snippet": "chown root:docker /var/run/docker.sock",
+          "dry_run": "set docker.sock owner to root:docker"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "/var/run/docker.sock should be owned by root:docker",
+      "actual": "root:root"
+    },
+    {
+      "control": {
+        "id": "3.16",
+        "title": "Ensure that the Docker socket file permissions are set to 660 or more restrictive",
+        "section": "Docker Daemon Configuration Files",
+        "level": "L1",
+        "scored": true,
+        "description": "A world-accessible Docker socket hands root-equivalent control to any local user.",
+        "remediation": "chmod 660 /var/run/docker.sock",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000033"
+          }
+        ],
+        "fix": {
+          "kind": "file-perm",
+          "target": "/var/run/docker.sock",
+          "snippet": "chmod 660 /var/run/docker.sock",
+          "dry_run": "restrict docker.sock to 0660"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "/var/run/docker.sock permissions 0666 are looser than 0660",
+      "actual": "0666"
+    },
+    {
+      "control": {
+        "id": "3.17",
+        "title": "Ensure that the daemon.json file ownership is set to root:root",
+        "section": "Docker Daemon Configuration Files",
+        "level": "L1",
+        "scored": true,
+        "description": "daemon.json controls the daemon's security posture; only root should own it.",
+        "remediation": "chown root:root /etc/docker/daemon.json",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000516"
+          }
+        ],
+        "fix": {
+          "kind": "file-perm",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "chown root:root /etc/docker/daemon.json",
+          "dry_run": "set daemon.json owner to root:root"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "/etc/docker/daemon.json should be owned by root:root",
+      "actual": "app:app"
+    },
+    {
+      "control": {
+        "id": "3.18",
+        "title": "Ensure that the daemon.json file permissions are set to 644 or more restrictive",
+        "section": "Docker Daemon Configuration Files",
+        "level": "L1",
+        "scored": true,
+        "description": "Overly permissive daemon.json permissions allow unprivileged tampering with daemon settings.",
+        "remediation": "chmod 644 /etc/docker/daemon.json",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.5.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000516"
+          }
+        ],
+        "fix": {
+          "kind": "file-perm",
+          "target": "/etc/docker/daemon.json",
+          "snippet": "chmod 644 /etc/docker/daemon.json",
+          "dry_run": "restrict daemon.json to 0644"
+        }
+      },
+      "status": "FAIL",
+      "evidence": "/etc/docker/daemon.json permissions 0666 are looser than 0644",
+      "actual": "0666"
+    },
+    {
+      "control": {
+        "id": "5.1",
+        "title": "Ensure AppArmor profile is enabled",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "Running a container with apparmor=unconfined removes mandatory-access-control confinement.",
+        "remediation": "Do not set --security-opt apparmor=unconfined; keep the docker-default profile or a custom one.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-3"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000233"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (apparmor unconfined)",
+      "actual": "web (apparmor unconfined)"
+    },
+    {
+      "control": {
+        "id": "5.3",
+        "title": "Ensure Linux kernel capabilities are restricted",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "Adding powerful capabilities (or ALL) re-arms attacks that the default capability set is meant to prevent.",
+        "remediation": "Drop all capabilities and add back only those required (--cap-drop ALL --cap-add ...).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.2"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (adds SYS_ADMIN)",
+      "actual": "web (adds SYS_ADMIN)"
+    },
+    {
+      "control": {
+        "id": "5.4",
+        "title": "Ensure privileged containers are not used",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "A privileged container disables namespace, capability, and seccomp isolation — effectively host root.",
+        "remediation": "Remove --privileged; grant only the specific capabilities/devices needed.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.2"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000342"
+          },
+          {
+            "framework": "PCI-DSS-4.0",
+            "id": "2.2.1"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (privileged)",
+      "actual": "web (privileged)"
+    },
+    {
+      "control": {
+        "id": "5.5",
+        "title": "Ensure sensitive host system directories are not mounted",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "Mounting host paths such as / or /etc into a container exposes the host to modification and data theft.",
+        "remediation": "Do not bind-mount sensitive host directories; if unavoidable, mount read-only and narrowly scoped.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (mounts host /)",
+      "actual": "web (mounts host /)"
+    },
+    {
+      "control": {
+        "id": "5.7",
+        "title": "Ensure privileged ports are not mapped within containers",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "Publishing a container on a host port below 1024 requires elevated privilege and widens the trust surface.",
+        "remediation": "Map containers to non-privileged host ports (\u003e=1024).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-7"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000142"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (host port 80)",
+      "actual": "web (host port 80)"
+    },
+    {
+      "control": {
+        "id": "5.9",
+        "title": "Ensure the host's network namespace is not shared",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "--network host removes network namespace isolation, letting the container sniff and bind host interfaces.",
+        "remediation": "Do not run with --network host; use bridge or a user-defined network.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-7"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000038"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (network=host)",
+      "actual": "web (network=host)"
+    },
+    {
+      "control": {
+        "id": "5.10",
+        "title": "Ensure memory usage for the container is limited",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "An unbounded container can exhaust host memory and take down co-located workloads (DoS).",
+        "remediation": "Set a memory limit (--memory).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.4"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000435"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (no memory limit)",
+      "actual": "web (no memory limit)"
+    },
+    {
+      "control": {
+        "id": "5.12",
+        "title": "Ensure the container's root filesystem is mounted read-only",
+        "section": "Container Runtime",
+        "level": "L2",
+        "scored": true,
+        "description": "A writable root filesystem lets an attacker persist tools and tamper with the running image.",
+        "remediation": "Run with --read-only and mount tmpfs/volumes only where writes are required.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.4"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "CM-5"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000133"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (writable rootfs)",
+      "actual": "web (writable rootfs)"
+    },
+    {
+      "control": {
+        "id": "5.15",
+        "title": "Ensure the host's process namespace is not shared",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "--pid host lets the container see and signal all host processes, breaking isolation.",
+        "remediation": "Do not run with --pid host.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-39"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (pid=host)",
+      "actual": "web (pid=host)"
+    },
+    {
+      "control": {
+        "id": "5.16",
+        "title": "Ensure the host's IPC namespace is not shared",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "--ipc host shares System V IPC / shared memory with the host and other containers.",
+        "remediation": "Do not run with --ipc host.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-39"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (ipc=host)",
+      "actual": "web (ipc=host)"
+    },
+    {
+      "control": {
+        "id": "5.20",
+        "title": "Ensure the host's UTS namespace is not shared",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "--uts host lets a container change the host's hostname and domain.",
+        "remediation": "Do not run with --uts host.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-39"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (uts=host)",
+      "actual": "web (uts=host)"
+    },
+    {
+      "control": {
+        "id": "5.21",
+        "title": "Ensure the default seccomp profile is not disabled",
+        "section": "Container Runtime",
+        "level": "L2",
+        "scored": true,
+        "description": "seccomp=unconfined removes syscall filtering, exposing the full kernel attack surface.",
+        "remediation": "Do not set --security-opt seccomp=unconfined; keep the default profile.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.1"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-39"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (seccomp unconfined)",
+      "actual": "web (seccomp unconfined)"
+    },
+    {
+      "control": {
+        "id": "5.25",
+        "title": "Ensure containers are restricted from acquiring new privileges",
+        "section": "Container Runtime",
+        "level": "L2",
+        "scored": true,
+        "description": "Without no-new-privileges, setuid binaries inside the container can escalate privilege.",
+        "remediation": "Run with --security-opt no-new-privileges (or enable it daemon-wide).",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.2"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000243"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (may acquire new privileges)",
+      "actual": "web (may acquire new privileges)"
+    },
+    {
+      "control": {
+        "id": "5.26",
+        "title": "Ensure container health is checked at runtime",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "Without a healthcheck, orchestrators cannot detect and recycle unhealthy containers.",
+        "remediation": "Define a HEALTHCHECK in the image or --health-cmd at run time.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.4"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SI-4"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000516"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (no healthcheck)",
+      "actual": "web (no healthcheck)"
+    },
+    {
+      "control": {
+        "id": "5.28",
+        "title": "Ensure the PIDs cgroup limit is used",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "An unbounded PID count allows fork-bomb denial of service against the host.",
+        "remediation": "Set --pids-limit to a sensible ceiling.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.4"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "SC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000435"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (no pids limit)",
+      "actual": "web (no pids limit)"
+    },
+    {
+      "control": {
+        "id": "5.31",
+        "title": "Ensure the Docker socket is not mounted inside any container",
+        "section": "Container Runtime",
+        "level": "L1",
+        "scored": true,
+        "description": "A container with the Docker socket mounted can control the daemon — a trivial host takeover path.",
+        "remediation": "Never bind-mount /var/run/docker.sock into a container; use a scoped API proxy if needed.",
+        "frameworks": [
+          {
+            "framework": "NIST-800-190",
+            "id": "4.4.3"
+          },
+          {
+            "framework": "NIST-800-53",
+            "id": "AC-6"
+          },
+          {
+            "framework": "DISA-STIG",
+            "id": "SRG-APP-000033"
+          },
+          {
+            "framework": "PCI-DSS-4.0",
+            "id": "2.2.1"
+          }
+        ]
+      },
+      "status": "FAIL",
+      "evidence": "web (docker.sock mounted)",
+      "actual": "web (docker.sock mounted)"
+    }
+  ]
+}

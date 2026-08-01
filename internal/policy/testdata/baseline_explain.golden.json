@@ -1,0 +1,100 @@
+{
+  "policy": "baseline",
+  "decision": "deny",
+  "summary": "DENIED by policy \"baseline\": 4 rule(s) blocked admission",
+  "denials": [
+    {
+      "rule_id": "require-signature",
+      "effect": "deny",
+      "severity": "HIGH",
+      "reason": "image is not signed by a trusted key",
+      "condition": "!signed",
+      "facts": {
+        "signed": "false"
+      },
+      "remediation": "Sign the image and push the bundle: dsecrat sign --image \u003cref\u003e --key \u003ckey\u003e",
+      "references": [
+        "SLSA-provenance",
+        "NIST-SSDF-PW.4"
+      ]
+    },
+    {
+      "rule_id": "cve-budget-critical",
+      "effect": "deny",
+      "severity": "CRITICAL",
+      "reason": "image exceeds the critical-CVE budget (budget: 0)",
+      "condition": "severity_count(\"critical\") \u003e 0",
+      "facts": {
+        "severity_count(\"critical\")": "1"
+      },
+      "remediation": "Rebuild on a patched base image or upgrade the affected packages to clear critical CVEs.",
+      "references": [
+        "CIS-Docker-4.4"
+      ]
+    },
+    {
+      "rule_id": "no-privileged",
+      "effect": "deny",
+      "severity": "CRITICAL",
+      "reason": "workload requests a privileged container",
+      "condition": "workload_present \u0026\u0026 privileged",
+      "facts": {
+        "privileged": "true",
+        "workload_present": "true"
+      },
+      "remediation": "Remove securityContext.privileged: true.",
+      "references": [
+        "PSS-baseline",
+        "CIS-K8s-5.2.1"
+      ]
+    },
+    {
+      "rule_id": "run-as-nonroot",
+      "effect": "deny",
+      "severity": "HIGH",
+      "reason": "workload runs as root (uid 0 / runAsNonRoot not set)",
+      "condition": "workload_present \u0026\u0026 runs_as_root",
+      "facts": {
+        "runs_as_root": "true",
+        "workload_present": "true"
+      },
+      "remediation": "Set securityContext.runAsNonRoot: true and a non-zero runAsUser.",
+      "references": [
+        "PSS-restricted",
+        "CIS-K8s-5.2.6"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "rule_id": "digest-pinned",
+      "effect": "warn",
+      "severity": "LOW",
+      "reason": "image is not pinned to a digest",
+      "condition": "!digest_pinned",
+      "facts": {
+        "digest_pinned": "false"
+      },
+      "remediation": "Reference the image by digest (name@sha256:...) so the deployed artifact is immutable."
+    },
+    {
+      "rule_id": "no-forbidden-licenses",
+      "effect": "warn",
+      "severity": "MEDIUM",
+      "reason": "image contains a package under a restricted license",
+      "condition": "has_license(\"GPL-3.0-only\") || has_license(\"AGPL-3.0-only\")",
+      "facts": {
+        "has_license(\"AGPL-3.0-only\")": "false",
+        "has_license(\"GPL-3.0-only\")": "true"
+      },
+      "remediation": "Replace the offending dependency or obtain a license exception."
+    }
+  ],
+  "remediation": [
+    "Rebuild on a patched base image or upgrade the affected packages to clear critical CVEs.",
+    "Remove securityContext.privileged: true.",
+    "Set securityContext.runAsNonRoot: true and a non-zero runAsUser.",
+    "Sign the image and push the bundle: dsecrat sign --image \u003cref\u003e --key \u003ckey\u003e"
+  ],
+  "evaluated_at": "2026-01-01T12:00:00Z"
+}

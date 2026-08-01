@@ -1,0 +1,48 @@
+# dsecrat-runtime — single-host runtime sensor (Docker Compose).
+#
+# The non-Kubernetes equivalent of the DaemonSet: one sensor watching every
+# container on one Docker host. pid: host makes the container's /proc the host's
+# /proc (same mechanism as hostPID in the DaemonSet), so the /proc-polling live
+# source sees every process on the box.
+#
+# Run:  docker compose -f deploy/runtime/compose.yaml up -d
+# Logs: tail -f ./alerts/alerts.jsonl
+services:
+  dsecrat-runtime:
+    image: ghcr.io/ratnadeepdeyroy/dsecrat-runtime:latest
+    # Share the host PID namespace so /proc is the host's process table.
+    pid: host
+    restart: unless-stopped
+    # detect-only by default. To arm prevention add: --mode=enforce --i-acknowledge
+    # (read README.md first).
+    command:
+      - run
+      - --alert-file=/var/log/dsecrat/alerts.jsonl
+      - --exceptions=/etc/dsecrat/exceptions.json
+      # - --syslog
+      # - --webhook=https://hooks.example/incident
+      # - --intel-feed=/etc/dsecrat/intel.json
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      # Read /proc/<pid>/exe of other containers' processes for drift/fileless
+      # detection. No privileged mode, no eBPF caps needed for this source.
+      - SYS_PTRACE
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: 256M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+    volumes:
+      # Docker socket (read-only) for container attribution.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Config: drop exceptions.json (and optionally intel.json) here.
+      - ./config:/etc/dsecrat:ro
+      # Durable JSONL alert trail on the host.
+      - ./alerts:/var/log/dsecrat

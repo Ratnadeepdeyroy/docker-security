@@ -1,0 +1,99 @@
+{
+  "version": "1",
+  "name": "baseline",
+  "description": "Shift-left + admission baseline: supply chain, CVE budget, and PSS-style workload hardening.",
+  "mode": "enforce",
+  "rules": [
+    {
+      "id": "trusted-registry-allow",
+      "description": "Images from the internal registry are pre-approved and exempt from the deny rules below.",
+      "match": "registry == \"registry.internal.example.com\"",
+      "effect": "allow"
+    },
+    {
+      "id": "require-signature",
+      "description": "Every image must carry a verified signature from a trusted key.",
+      "match": "!signed",
+      "effect": "deny",
+      "severity": "high",
+      "message": "image is not signed by a trusted key",
+      "remediation": "Sign the image and push the bundle: dsecrat sign --image <ref> --key <key>",
+      "references": ["SLSA-provenance", "NIST-SSDF-PW.4"]
+    },
+    {
+      "id": "cve-budget-critical",
+      "description": "No critical CVEs may reach production.",
+      "match": "severity_count(\"critical\") > 0",
+      "effect": "deny",
+      "severity": "critical",
+      "message": "image exceeds the critical-CVE budget (budget: 0)",
+      "remediation": "Rebuild on a patched base image or upgrade the affected packages to clear critical CVEs.",
+      "references": ["CIS-Docker-4.4"]
+    },
+    {
+      "id": "cve-budget-high",
+      "description": "At most a handful of high CVEs are tolerated; beyond that, block.",
+      "match": "severity_count(\"high\") > 5",
+      "effect": "deny",
+      "severity": "high",
+      "message": "image exceeds the high-CVE budget (budget: 5)",
+      "remediation": "Reduce high-severity findings below the budget before deploying."
+    },
+    {
+      "id": "digest-pinned",
+      "description": "Image references should be pinned to a digest, not a mutable tag.",
+      "match": "!digest_pinned",
+      "effect": "warn",
+      "severity": "low",
+      "message": "image is not pinned to a digest",
+      "remediation": "Reference the image by digest (name@sha256:...) so the deployed artifact is immutable."
+    },
+    {
+      "id": "no-privileged",
+      "description": "Privileged containers are forbidden (PSS baseline).",
+      "match": "workload_present && privileged",
+      "effect": "deny",
+      "severity": "critical",
+      "message": "workload requests a privileged container",
+      "remediation": "Remove securityContext.privileged: true.",
+      "references": ["PSS-baseline", "CIS-K8s-5.2.1"]
+    },
+    {
+      "id": "run-as-nonroot",
+      "description": "Containers must not run as root (PSS restricted).",
+      "match": "workload_present && runs_as_root",
+      "effect": "deny",
+      "severity": "high",
+      "message": "workload runs as root (uid 0 / runAsNonRoot not set)",
+      "remediation": "Set securityContext.runAsNonRoot: true and a non-zero runAsUser.",
+      "references": ["PSS-restricted", "CIS-K8s-5.2.6"]
+    },
+    {
+      "id": "no-host-namespaces",
+      "description": "Host network/PID/IPC namespaces break container isolation.",
+      "match": "workload_present && (host_network || host_pid || host_ipc)",
+      "effect": "deny",
+      "severity": "high",
+      "message": "workload shares a host namespace (network/PID/IPC)",
+      "remediation": "Remove hostNetwork/hostPID/hostIPC from the pod spec."
+    },
+    {
+      "id": "no-forbidden-licenses",
+      "description": "Copyleft licenses incompatible with distribution are disallowed.",
+      "match": "has_license(\"GPL-3.0-only\") || has_license(\"AGPL-3.0-only\")",
+      "effect": "warn",
+      "severity": "medium",
+      "message": "image contains a package under a restricted license",
+      "remediation": "Replace the offending dependency or obtain a license exception."
+    }
+  ],
+  "waivers": [
+    {
+      "rule_id": "cve-budget-high",
+      "reason": "legacy base image scheduled for replacement in Q1; risk accepted",
+      "owner": "secops@example.com",
+      "expires": "2026-03-31",
+      "scope": { "image_pattern": "^legacy/" }
+    }
+  ]
+}

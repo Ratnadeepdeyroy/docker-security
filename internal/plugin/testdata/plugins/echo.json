@@ -1,0 +1,9 @@
+{
+  "name": "echo-linter",
+  "description": "reference plugin: emits one demonstration finding",
+  "version": "1.0.0",
+  "domains": ["0"],
+  "target_types": ["dockerfile", "filesystem"],
+  "exec": ["/bin/sh", "${dir}/echo.sh"],
+  "timeout_ms": 5000
+}

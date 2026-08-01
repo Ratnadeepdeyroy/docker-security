@@ -1,0 +1,6 @@
+{
+  "exceptions": [
+    { "rule_id": "DS-RAT-RT-001", "image_ref": "ci/runner:1", "note": "CI runner legitimately spawns shells" },
+    { "rule_id": "DS-RAT-RT-004", "path_prefix": "/var/log/app/", "note": "app rotates its own logs" }
+  ]
+}

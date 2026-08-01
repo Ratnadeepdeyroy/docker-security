@@ -1,0 +1,52 @@
+{
+  "version": "1.29.3",
+  "platform": "self-managed",
+  "apiserver": {
+    "flags": {
+      "anonymous-auth": "true",
+      "token-auth-file": "/etc/kubernetes/tokens.csv",
+      "authorization-mode": "AlwaysAllow",
+      "enable-admission-plugins": "AlwaysAdmit,ServiceAccount",
+      "profiling": "true"
+    }
+  },
+  "etcd": {
+    "flags": {
+      "cert-file": "/etc/etcd/server.crt",
+      "key-file": "/etc/etcd/server.key",
+      "auto-tls": "true",
+      "peer-auto-tls": "true"
+    }
+  },
+  "kubelet": {
+    "flags": {
+      "anonymous-auth": "true",
+      "authorization-mode": "AlwaysAllow",
+      "read-only-port": "10255",
+      "make-iptables-util-chains": "false"
+    }
+  },
+  "files": [
+    {"path": "/etc/kubernetes/manifests/kube-apiserver.yaml", "exists": true, "mode": "0666", "owner": "app", "group": "app"},
+    {"path": "/var/lib/kubelet/config.yaml", "exists": true, "mode": "0644", "owner": "root", "group": "root"}
+  ],
+  "rbac": {
+    "cluster_role_bindings": [
+      {"name": "cluster-admin", "role_ref": "ClusterRole/cluster-admin", "subjects": [{"kind": "Group", "name": "system:masters"}]},
+      {"name": "dev-admin", "role_ref": "ClusterRole/cluster-admin", "subjects": [{"kind": "ServiceAccount", "name": "ci-runner", "namespace": "ci"}]}
+    ],
+    "roles": [
+      {"name": "app-reader", "rules": [{"api_groups": [""], "resources": ["pods"], "verbs": ["get", "list"]}]},
+      {"name": "wildcard-role", "rules": [{"api_groups": ["*"], "resources": ["*"], "verbs": ["*"]}]}
+    ],
+    "service_accounts": [
+      {"namespace": "app", "name": "default"}
+    ]
+  },
+  "pod_security": {
+    "admission_enabled": false,
+    "namespace_enforce": {}
+  },
+  "network_policy_namespaces": [],
+  "namespaces": ["app", "default"]
+}

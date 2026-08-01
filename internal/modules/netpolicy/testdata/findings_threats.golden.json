@@ -1,0 +1,203 @@
+[
+  {
+    "rule_id": "DS-RAT-NET-000",
+    "module": "netpolicy",
+    "severity": "INFO",
+    "title": "Network capture analysed: 6 workload(s), 28 flow(s), 8 anomaly(ies)",
+    "description": "policy_mode=audit egress=28 ingress=0 distinct_egress_dests=17 verdict_allow=23 verdict_deny=5 bytes_tx=62919956 bytes_rx=12812",
+    "resource": "network",
+    "references": [
+      "https://kubernetes.io/docs/concepts/services-networking/network-policies/"
+    ],
+    "metadata": {
+      "anomalies": "8",
+      "flows": "28",
+      "policy_mode": "audit",
+      "verdict_deny": "5",
+      "workloads": "6"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-001",
+    "module": "netpolicy",
+    "severity": "MEDIUM",
+    "title": "No default-deny egress policy in effect",
+    "description": "The capture ran with policy_mode=\"audit\" while workloads made outbound connections. Without a default-deny egress baseline, a compromised workload can reach any destination (C2, exfil, IMDS).",
+    "resource": "cluster/egress",
+    "remediation": "Apply a namespace-wide default-deny egress NetworkPolicy, then allow only observed destinations. Generate both with: dsecrat net \u003ccapture\u003e --gen deny  and  dsecrat net \u003ccapture\u003e --gen policy",
+    "references": [
+      "https://kubernetes.io/docs/concepts/services-networking/network-policies/#default-deny-all-egress-traffic",
+      "https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-190.pdf"
+    ],
+    "metadata": {
+      "policy_mode": "audit"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-010",
+    "module": "netpolicy",
+    "severity": "CRITICAL",
+    "title": "Egress to cloud instance-metadata endpoint (IMDS)",
+    "description": "Workload \"prod/malware\" connected to metadata endpoint 169.254.169.254 3 time(s). This endpoint vends node/instance IAM credentials; container access to it is a common credential-theft and privilege-escalation path.",
+    "resource": "prod/malware → 169.254.169.254",
+    "remediation": "Block egress to 169.254.169.254 for this workload and enforce IMDSv2 (hop-limit 1). Generate the deny with: dsecrat net \u003ccapture\u003e --gen deny --workload prod/malware",
+    "references": [
+      "https://attack.mitre.org/techniques/T1552/005/",
+      "https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-190.pdf"
+    ],
+    "metadata": {
+      "connections": "3",
+      "dst_ip": "169.254.169.254",
+      "dst_port": "80",
+      "kind": "imds_access",
+      "score": "1.000",
+      "workload": "prod/malware"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-011",
+    "module": "netpolicy",
+    "severity": "HIGH",
+    "title": "Periodic C2 beaconing pattern to external host",
+    "description": "6 connections to cdn.evil-c2.example at a near-constant 60s interval (jitter CV 0.000), averaging 512 bytes each — the low-jitter, low-volume signature of an automated callback.",
+    "resource": "prod/malware → cdn.evil-c2.example",
+    "remediation": "Confirm the destination is legitimate; if not, isolate the workload and restrict egress to the generated least-privilege allowlist: dsecrat net \u003ccapture\u003e --gen fqdn --workload prod/malware",
+    "references": [
+      "https://attack.mitre.org/techniques/T1071/",
+      "https://attack.mitre.org/techniques/T1571/"
+    ],
+    "metadata": {
+      "avg_bytes": "512",
+      "connections": "6",
+      "interval_sec": "60",
+      "jitter_cv": "0.000",
+      "kind": "c2_beacon",
+      "score": "1.000",
+      "workload": "prod/malware"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-016",
+    "module": "netpolicy",
+    "severity": "HIGH",
+    "title": "Probable DGA activity (NXDOMAIN storm to high-entropy domains)",
+    "description": "12 NXDOMAIN responses across 12 distinct parent domains with avg leftmost-label entropy 3.84 bits/char — the pattern of a domain-generation algorithm probing for its live C2 rendezvous.",
+    "resource": "prod/dga-bot",
+    "remediation": "Confirm the destination is legitimate; if not, isolate the workload and restrict egress to the generated least-privilege allowlist: dsecrat net \u003ccapture\u003e --gen fqdn --workload prod/dga-bot",
+    "references": [
+      "https://attack.mitre.org/techniques/T1568/002/"
+    ],
+    "metadata": {
+      "avg_entropy": "3.84",
+      "distinct_parents": "12",
+      "kind": "dns_dga",
+      "nxdomain_count": "12",
+      "score": "0.960",
+      "workload": "prod/dga-bot"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-015",
+    "module": "netpolicy",
+    "severity": "HIGH",
+    "title": "Probable DNS tunnelling (high-entropy subdomain queries)",
+    "description": "25 queries under \"tunnel.example\" with avg subdomain entropy 3.94 bits/char and avg length 24 (max 24); 25 used data-carrying record types. Long, high-entropy labels under one parent are the signature of DNS tunnelling.",
+    "resource": "prod/dns-tunnel → tunnel.example",
+    "remediation": "Confirm the destination is legitimate; if not, isolate the workload and restrict egress to the generated least-privilege allowlist: dsecrat net \u003ccapture\u003e --gen fqdn --workload prod/dns-tunnel",
+    "references": [
+      "https://attack.mitre.org/techniques/T1071/004/",
+      "https://attack.mitre.org/techniques/T1048/003/"
+    ],
+    "metadata": {
+      "avg_entropy": "3.94",
+      "avg_sub_len": "24",
+      "data_records": "25",
+      "kind": "dns_tunnel",
+      "parent": "tunnel.example",
+      "queries": "25",
+      "score": "0.986",
+      "workload": "prod/dns-tunnel"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-012",
+    "module": "netpolicy",
+    "severity": "HIGH",
+    "title": "High-volume upload to external host (possible data exfiltration)",
+    "description": "Workload \"prod/malware\" sent 60.0 MiB to drop.exfil-store.example across 1 connection(s) with a 15360.0:1 upload:download ratio — an upload-dominant transfer to a single external destination.",
+    "resource": "prod/malware → drop.exfil-store.example",
+    "remediation": "Confirm the destination is legitimate; if not, isolate the workload and restrict egress to the generated least-privilege allowlist: dsecrat net \u003ccapture\u003e --gen fqdn --workload prod/malware",
+    "references": [
+      "https://attack.mitre.org/techniques/T1041/",
+      "https://attack.mitre.org/techniques/T1567/"
+    ],
+    "metadata": {
+      "bytes_rx": "4096",
+      "bytes_tx": "62914560",
+      "connections": "1",
+      "kind": "exfil_volume",
+      "score": "0.900",
+      "tx_rx_ratio": "15360.00",
+      "workload": "prod/malware"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-014",
+    "module": "netpolicy",
+    "severity": "HIGH",
+    "title": "Lateral-movement fan-out across internal peers",
+    "description": "Workload \"prod/scanner\" connected to 12 distinct internal peers across 12 distinct port(s) — a fan-out consistent with east-west scanning or lateral movement rather than a fixed dependency set.",
+    "resource": "prod/scanner",
+    "remediation": "Apply identity/label-based east-west segmentation so this workload can only reach its known dependencies. Generate a NetworkPolicy: dsecrat net \u003ccapture\u003e --gen policy --workload prod/scanner",
+    "references": [
+      "https://attack.mitre.org/tactics/TA0008/",
+      "https://attack.mitre.org/techniques/T1021/"
+    ],
+    "metadata": {
+      "distinct_peers": "12",
+      "distinct_ports": "12",
+      "kind": "lateral_movement",
+      "sample_peers": "10.2.0.20,10.2.0.21,10.2.0.22,10.2.0.23,10.2.0.24",
+      "score": "0.750",
+      "workload": "prod/scanner"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-002",
+    "module": "netpolicy",
+    "severity": "MEDIUM",
+    "title": "Workload runs with host network namespace",
+    "description": "hostNetwork removes network-namespace isolation; NetworkPolicy/egress rules do not apply to this pod.",
+    "resource": "infra/host-net-app",
+    "remediation": "Remove hostNetwork:true unless strictly required; host-networked pods bypass NetworkPolicy and cannot be egress-contained.",
+    "references": [
+      "https://attack.mitre.org/techniques/T1610/",
+      "https://kubernetes.io/docs/concepts/security/pod-security-standards/"
+    ],
+    "metadata": {
+      "host_network": "true",
+      "kind": "host_network",
+      "score": "1.000",
+      "workload": "infra/host-net-app"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-NET-030",
+    "module": "netpolicy",
+    "severity": "LOW",
+    "title": "Egress denied by policy (blocked-egress alert)",
+    "description": "5 egress attempt(s) from \"prod/blocked-app\" to blocked.example were dropped by policy. Repeated denials can indicate a misconfigured allowlist or a workload probing for an exit.",
+    "resource": "prod/blocked-app → blocked.example",
+    "remediation": "Review the flow against the workload's intended egress baseline and add an explicit allow or deny rule.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/services-networking/network-policies/"
+    ],
+    "metadata": {
+      "denied": "5",
+      "dst_port": "8443",
+      "kind": "blocked_egress",
+      "score": "0.500",
+      "workload": "prod/blocked-app"
+    }
+  }
+]

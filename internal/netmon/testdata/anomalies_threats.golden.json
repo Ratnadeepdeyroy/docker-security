@@ -1,0 +1,115 @@
+[
+  {
+    "Kind": "imds_access",
+    "Severity": "CRITICAL",
+    "Workload": "prod/malware",
+    "Dest": "169.254.169.254",
+    "Title": "Egress to cloud instance-metadata endpoint (IMDS)",
+    "Detail": "Workload \"prod/malware\" connected to metadata endpoint 169.254.169.254 3 time(s). This endpoint vends node/instance IAM credentials; container access to it is a common credential-theft and privilege-escalation path.",
+    "Score": 1,
+    "Evidence": {
+      "connections": "3",
+      "dst_ip": "169.254.169.254",
+      "dst_port": "80"
+    }
+  },
+  {
+    "Kind": "c2_beacon",
+    "Severity": "HIGH",
+    "Workload": "prod/malware",
+    "Dest": "cdn.evil-c2.example",
+    "Title": "Periodic C2 beaconing pattern to external host",
+    "Detail": "6 connections to cdn.evil-c2.example at a near-constant 60s interval (jitter CV 0.000), averaging 512 bytes each — the low-jitter, low-volume signature of an automated callback.",
+    "Score": 1,
+    "Evidence": {
+      "avg_bytes": "512",
+      "connections": "6",
+      "interval_sec": "60",
+      "jitter_cv": "0.000"
+    }
+  },
+  {
+    "Kind": "dns_dga",
+    "Severity": "HIGH",
+    "Workload": "prod/dga-bot",
+    "Dest": "",
+    "Title": "Probable DGA activity (NXDOMAIN storm to high-entropy domains)",
+    "Detail": "12 NXDOMAIN responses across 12 distinct parent domains with avg leftmost-label entropy 3.84 bits/char — the pattern of a domain-generation algorithm probing for its live C2 rendezvous.",
+    "Score": 0.96,
+    "Evidence": {
+      "avg_entropy": "3.84",
+      "distinct_parents": "12",
+      "nxdomain_count": "12"
+    }
+  },
+  {
+    "Kind": "dns_tunnel",
+    "Severity": "HIGH",
+    "Workload": "prod/dns-tunnel",
+    "Dest": "tunnel.example",
+    "Title": "Probable DNS tunnelling (high-entropy subdomain queries)",
+    "Detail": "25 queries under \"tunnel.example\" with avg subdomain entropy 3.94 bits/char and avg length 24 (max 24); 25 used data-carrying record types. Long, high-entropy labels under one parent are the signature of DNS tunnelling.",
+    "Score": 0.986,
+    "Evidence": {
+      "avg_entropy": "3.94",
+      "avg_sub_len": "24",
+      "data_records": "25",
+      "parent": "tunnel.example",
+      "queries": "25"
+    }
+  },
+  {
+    "Kind": "exfil_volume",
+    "Severity": "HIGH",
+    "Workload": "prod/malware",
+    "Dest": "drop.exfil-store.example",
+    "Title": "High-volume upload to external host (possible data exfiltration)",
+    "Detail": "Workload \"prod/malware\" sent 60.0 MiB to drop.exfil-store.example across 1 connection(s) with a 15360.0:1 upload:download ratio — an upload-dominant transfer to a single external destination.",
+    "Score": 0.9,
+    "Evidence": {
+      "bytes_rx": "4096",
+      "bytes_tx": "62914560",
+      "connections": "1",
+      "tx_rx_ratio": "15360.00"
+    }
+  },
+  {
+    "Kind": "lateral_movement",
+    "Severity": "HIGH",
+    "Workload": "prod/scanner",
+    "Dest": "",
+    "Title": "Lateral-movement fan-out across internal peers",
+    "Detail": "Workload \"prod/scanner\" connected to 12 distinct internal peers across 12 distinct port(s) — a fan-out consistent with east-west scanning or lateral movement rather than a fixed dependency set.",
+    "Score": 0.75,
+    "Evidence": {
+      "distinct_peers": "12",
+      "distinct_ports": "12",
+      "sample_peers": "10.2.0.20,10.2.0.21,10.2.0.22,10.2.0.23,10.2.0.24"
+    }
+  },
+  {
+    "Kind": "host_network",
+    "Severity": "MEDIUM",
+    "Workload": "infra/host-net-app",
+    "Dest": "",
+    "Title": "Workload runs with host network namespace",
+    "Detail": "hostNetwork removes network-namespace isolation; NetworkPolicy/egress rules do not apply to this pod.",
+    "Score": 1,
+    "Evidence": {
+      "host_network": "true"
+    }
+  },
+  {
+    "Kind": "blocked_egress",
+    "Severity": "LOW",
+    "Workload": "prod/blocked-app",
+    "Dest": "blocked.example",
+    "Title": "Egress denied by policy (blocked-egress alert)",
+    "Detail": "5 egress attempt(s) from \"prod/blocked-app\" to blocked.example were dropped by policy. Repeated denials can indicate a misconfigured allowlist or a workload probing for an exit.",
+    "Score": 0.5,
+    "Evidence": {
+      "denied": "5",
+      "dst_port": "8443"
+    }
+  }
+]

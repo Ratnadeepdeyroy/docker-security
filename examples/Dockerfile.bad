@@ -1,0 +1,7 @@
+FROM ubuntu:latest
+ENV DB_PASSWORD=hunter2
+RUN apt-get update && apt-get install -y curl
+RUN curl https://get.example.com/install.sh | bash
+ADD https://example.com/app.tar.gz /opt/app
+RUN sudo make install
+CMD ["/opt/app/server"]

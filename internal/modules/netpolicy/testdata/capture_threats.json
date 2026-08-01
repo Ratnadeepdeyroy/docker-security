@@ -1,0 +1,925 @@
+{
+  "policy_mode": "audit",
+  "workloads": [
+    {
+      "id": "prod/malware",
+      "name": "malware",
+      "namespace": "prod",
+      "labels": {
+        "app": "billing"
+      }
+    },
+    {
+      "id": "prod/scanner",
+      "name": "scanner",
+      "namespace": "prod",
+      "labels": {
+        "app": "worker"
+      }
+    },
+    {
+      "id": "prod/dns-tunnel",
+      "name": "dns-tunnel",
+      "namespace": "prod"
+    },
+    {
+      "id": "prod/dga-bot",
+      "name": "dga-bot",
+      "namespace": "prod"
+    },
+    {
+      "id": "infra/host-net-app",
+      "name": "host-net-app",
+      "namespace": "infra",
+      "host_network": true
+    },
+    {
+      "id": "prod/blocked-app",
+      "name": "blocked-app",
+      "namespace": "prod"
+    }
+  ],
+  "flows": [
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000000,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 40000
+      },
+      "dst": {
+        "ip": "169.254.169.254",
+        "port": 80
+      },
+      "bytes_tx": 120,
+      "bytes_rx": 900,
+      "verdict": "allow",
+      "process": "curl",
+      "pid": 6610
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000005,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 40001
+      },
+      "dst": {
+        "ip": "169.254.169.254",
+        "port": 80
+      },
+      "bytes_tx": 120,
+      "bytes_rx": 900,
+      "verdict": "allow",
+      "process": "curl",
+      "pid": 6610
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000010,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 40002
+      },
+      "dst": {
+        "ip": "169.254.169.254",
+        "port": 80
+      },
+      "bytes_tx": 120,
+      "bytes_rx": 900,
+      "verdict": "allow",
+      "process": "curl",
+      "pid": 6610
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000100,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 41000
+      },
+      "dst": {
+        "ip": "203.0.113.66",
+        "port": 443,
+        "fqdn": "cdn.evil-c2.example"
+      },
+      "bytes_tx": 256,
+      "bytes_rx": 256,
+      "verdict": "allow",
+      "process": "implant",
+      "pid": 6611
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000160,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 41001
+      },
+      "dst": {
+        "ip": "203.0.113.66",
+        "port": 443,
+        "fqdn": "cdn.evil-c2.example"
+      },
+      "bytes_tx": 256,
+      "bytes_rx": 256,
+      "verdict": "allow",
+      "process": "implant",
+      "pid": 6611
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000220,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 41002
+      },
+      "dst": {
+        "ip": "203.0.113.66",
+        "port": 443,
+        "fqdn": "cdn.evil-c2.example"
+      },
+      "bytes_tx": 256,
+      "bytes_rx": 256,
+      "verdict": "allow",
+      "process": "implant",
+      "pid": 6611
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000280,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 41003
+      },
+      "dst": {
+        "ip": "203.0.113.66",
+        "port": 443,
+        "fqdn": "cdn.evil-c2.example"
+      },
+      "bytes_tx": 256,
+      "bytes_rx": 256,
+      "verdict": "allow",
+      "process": "implant",
+      "pid": 6611
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000340,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 41004
+      },
+      "dst": {
+        "ip": "203.0.113.66",
+        "port": 443,
+        "fqdn": "cdn.evil-c2.example"
+      },
+      "bytes_tx": 256,
+      "bytes_rx": 256,
+      "verdict": "allow",
+      "process": "implant",
+      "pid": 6611
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1000400,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 41005
+      },
+      "dst": {
+        "ip": "203.0.113.66",
+        "port": 443,
+        "fqdn": "cdn.evil-c2.example"
+      },
+      "bytes_tx": 256,
+      "bytes_rx": 256,
+      "verdict": "allow",
+      "process": "implant",
+      "pid": 6611
+    },
+    {
+      "workload_id": "prod/malware",
+      "ts_unix": 1002000,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.1.0.5",
+        "port": 42000
+      },
+      "dst": {
+        "ip": "198.51.100.9",
+        "port": 443,
+        "fqdn": "drop.exfil-store.example"
+      },
+      "bytes_tx": 62914560,
+      "bytes_rx": 4096,
+      "verdict": "allow",
+      "process": "curl",
+      "pid": 6612
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003000,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50000
+      },
+      "dst": {
+        "ip": "10.2.0.20",
+        "port": 22
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003001,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50001
+      },
+      "dst": {
+        "ip": "10.2.0.21",
+        "port": 23
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003002,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50002
+      },
+      "dst": {
+        "ip": "10.2.0.22",
+        "port": 80
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003003,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50003
+      },
+      "dst": {
+        "ip": "10.2.0.23",
+        "port": 443
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003004,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50004
+      },
+      "dst": {
+        "ip": "10.2.0.24",
+        "port": 445
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003005,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50005
+      },
+      "dst": {
+        "ip": "10.2.0.25",
+        "port": 3306
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003006,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50006
+      },
+      "dst": {
+        "ip": "10.2.0.26",
+        "port": 5432
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003007,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50007
+      },
+      "dst": {
+        "ip": "10.2.0.27",
+        "port": 6379
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003008,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50008
+      },
+      "dst": {
+        "ip": "10.2.0.28",
+        "port": 8080
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003009,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50009
+      },
+      "dst": {
+        "ip": "10.2.0.29",
+        "port": 9000
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003010,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50010
+      },
+      "dst": {
+        "ip": "10.2.0.30",
+        "port": 9200
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "prod/scanner",
+      "ts_unix": 1003011,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.2.0.9",
+        "port": 50011
+      },
+      "dst": {
+        "ip": "10.2.0.31",
+        "port": 27017
+      },
+      "bytes_tx": 200,
+      "bytes_rx": 40,
+      "verdict": "allow",
+      "process": "nmap",
+      "pid": 7001
+    },
+    {
+      "workload_id": "infra/host-net-app",
+      "ts_unix": 1006000,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.3.0.2",
+        "port": 55000
+      },
+      "dst": {
+        "ip": "140.82.112.3",
+        "port": 443,
+        "fqdn": "api.github.com"
+      },
+      "bytes_tx": 800,
+      "bytes_rx": 4000,
+      "verdict": "allow",
+      "process": "agent",
+      "pid": 8000
+    },
+    {
+      "workload_id": "prod/blocked-app",
+      "ts_unix": 1007000,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.4.0.7",
+        "port": 56000
+      },
+      "dst": {
+        "ip": "203.0.113.200",
+        "port": 8443,
+        "fqdn": "blocked.example"
+      },
+      "bytes_tx": 60,
+      "bytes_rx": 0,
+      "verdict": "deny",
+      "process": "app",
+      "pid": 8100
+    },
+    {
+      "workload_id": "prod/blocked-app",
+      "ts_unix": 1007005,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.4.0.7",
+        "port": 56001
+      },
+      "dst": {
+        "ip": "203.0.113.200",
+        "port": 8443,
+        "fqdn": "blocked.example"
+      },
+      "bytes_tx": 60,
+      "bytes_rx": 0,
+      "verdict": "deny",
+      "process": "app",
+      "pid": 8100
+    },
+    {
+      "workload_id": "prod/blocked-app",
+      "ts_unix": 1007030,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.4.0.7",
+        "port": 56002
+      },
+      "dst": {
+        "ip": "203.0.113.200",
+        "port": 8443,
+        "fqdn": "blocked.example"
+      },
+      "bytes_tx": 60,
+      "bytes_rx": 0,
+      "verdict": "deny",
+      "process": "app",
+      "pid": 8100
+    },
+    {
+      "workload_id": "prod/blocked-app",
+      "ts_unix": 1007090,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.4.0.7",
+        "port": 56003
+      },
+      "dst": {
+        "ip": "203.0.113.200",
+        "port": 8443,
+        "fqdn": "blocked.example"
+      },
+      "bytes_tx": 60,
+      "bytes_rx": 0,
+      "verdict": "deny",
+      "process": "app",
+      "pid": 8100
+    },
+    {
+      "workload_id": "prod/blocked-app",
+      "ts_unix": 1007200,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.4.0.7",
+        "port": 56004
+      },
+      "dst": {
+        "ip": "203.0.113.200",
+        "port": 8443,
+        "fqdn": "blocked.example"
+      },
+      "bytes_tx": 60,
+      "bytes_rx": 0,
+      "verdict": "deny",
+      "process": "app",
+      "pid": 8100
+    }
+  ],
+  "dns": [
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004000,
+      "qname": "yxcfuw3gsvxrfqvmxpe52ut3.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004002,
+      "qname": "ir4ia4b4ulvglhivxf6yon6o.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004004,
+      "qname": "zlwlnchswbt3r636w3zudgjc.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004006,
+      "qname": "jfqo2iohxwsrwvohwrtqy7uv.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004008,
+      "qname": "z7kqgou5zmqg4mcpwhommyai.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004010,
+      "qname": "kzettu3t3co3ccvyv5jibrl3.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004012,
+      "qname": "2t6w72bi4xnqizibvtdewkwp.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004014,
+      "qname": "lnyzmah66nlfnq3kvj6akdbc.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004016,
+      "qname": "3is4zgotadj3thptu7y474mv.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004018,
+      "qname": "lcm7fmujbyiqz6c4uvtyuvxi.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004020,
+      "qname": "44gcss27dogf6vvfulnuiod3.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004022,
+      "qname": "mwaf6zbufee2elioubiq5hop.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004024,
+      "qname": "4q2il7hkg2cqkc4xtxcmsazc.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004026,
+      "qname": "nkulyfo7ipbfqzpatn5igzev.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004028,
+      "qname": "5eooeluvjf72vqcjtdyd3spi.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004030,
+      "qname": "n6iqrr2ll35p3hvsszs7ql24.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004032,
+      "qname": "6yct5xbanq4eb5j3spn3eegp.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004034,
+      "qname": "os4wk5hwog22gu4dsfhxz4rc.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004036,
+      "qname": "6mwzxdomq4ypmlpmr3ctov4v.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004038,
+      "qname": "pgq4djubsrxesccvrq4pdohi.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004040,
+      "qname": "7ak7qp2xthvzyzv6rgxlxhs4.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004042,
+      "qname": "p3ec4vbmv5to5qjhq4rhma6p.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004044,
+      "qname": "av6fj3hcxsredg4qqsmdbzjc.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004046,
+      "qname": "qpyiwbnyyiqzj5pzqih7vsuv.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dns-tunnel",
+      "ts_unix": 1004048,
+      "qname": "bjslchun26ooouccp6b3kl7j.tunnel.example",
+      "qtype": "TXT",
+      "rcode": "NOERROR",
+      "answers": [
+        "v=1"
+      ]
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005000,
+      "qname": "2wpbkiiwdwxl5yyjsgcn.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005003,
+      "qname": "kqjexoomfmvadplsr44j.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005006,
+      "qname": "3kdgduvbhbtvif63rsxf.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005009,
+      "qname": "le5jq23xixslo4rerisb.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005012,
+      "qname": "37xm4acmknqautfmq6m5.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005015,
+      "qname": "mzrpjgiclcov2kyvquhz.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005018,
+      "qname": "4tlswmoynymk7bl6qkbv.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005021,
+      "qname": "mnfvcsvnpol7fy6hpa4r.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005024,
+      "qname": "5h7ypz3dqejvlosqpwwn.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005027,
+      "qname": "nbz337byszhkqffzpmrj.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005030,
+      "qname": "53t6ifioupg7w4ycocmf.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    },
+    {
+      "workload_id": "prod/dga-bot",
+      "ts_unix": 1005033,
+      "qname": "ovnbvloevfeu4tlloyga.top",
+      "qtype": "A",
+      "rcode": "NXDOMAIN"
+    }
+  ]
+}

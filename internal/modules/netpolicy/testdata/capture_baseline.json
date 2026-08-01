@@ -1,0 +1,277 @@
+{
+  "policy_mode": "none",
+  "workloads": [
+    {
+      "id": "shop/checkout",
+      "name": "checkout",
+      "namespace": "shop",
+      "labels": {
+        "app": "checkout",
+        "tier": "backend"
+      }
+    }
+  ],
+  "flows": [
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000000,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 43000
+      },
+      "dst": {
+        "ip": "34.200.0.10",
+        "port": 443,
+        "fqdn": "api.stripe.com"
+      },
+      "bytes_tx": 1500,
+      "bytes_rx": 8000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000300,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 43001
+      },
+      "dst": {
+        "ip": "34.200.0.10",
+        "port": 443,
+        "fqdn": "api.stripe.com"
+      },
+      "bytes_tx": 1500,
+      "bytes_rx": 8000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000600,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 43002
+      },
+      "dst": {
+        "ip": "34.200.0.10",
+        "port": 443,
+        "fqdn": "api.stripe.com"
+      },
+      "bytes_tx": 1500,
+      "bytes_rx": 8000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000900,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 43003
+      },
+      "dst": {
+        "ip": "34.200.0.10",
+        "port": 443,
+        "fqdn": "api.stripe.com"
+      },
+      "bytes_tx": 1500,
+      "bytes_rx": 8000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2001200,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 43004
+      },
+      "dst": {
+        "ip": "34.200.0.10",
+        "port": 443,
+        "fqdn": "api.stripe.com"
+      },
+      "bytes_tx": 1500,
+      "bytes_rx": 8000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2001500,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 43005
+      },
+      "dst": {
+        "ip": "34.200.0.10",
+        "port": 443,
+        "fqdn": "api.stripe.com"
+      },
+      "bytes_tx": 1500,
+      "bytes_rx": 8000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000050,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 44000
+      },
+      "dst": {
+        "ip": "10.9.0.20",
+        "port": 5432,
+        "fqdn": "db.shop.svc"
+      },
+      "bytes_tx": 900,
+      "bytes_rx": 3000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000350,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 44001
+      },
+      "dst": {
+        "ip": "10.9.0.20",
+        "port": 5432,
+        "fqdn": "db.shop.svc"
+      },
+      "bytes_tx": 900,
+      "bytes_rx": 3000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000650,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 44002
+      },
+      "dst": {
+        "ip": "10.9.0.20",
+        "port": 5432,
+        "fqdn": "db.shop.svc"
+      },
+      "bytes_tx": 900,
+      "bytes_rx": 3000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000950,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 44003
+      },
+      "dst": {
+        "ip": "10.9.0.20",
+        "port": 5432,
+        "fqdn": "db.shop.svc"
+      },
+      "bytes_tx": 900,
+      "bytes_rx": 3000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2001250,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 44004
+      },
+      "dst": {
+        "ip": "10.9.0.20",
+        "port": 5432,
+        "fqdn": "db.shop.svc"
+      },
+      "bytes_tx": 900,
+      "bytes_rx": 3000,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 2000900,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.9.0.4",
+        "port": 45000
+      },
+      "dst": {
+        "ip": "185.220.101.5",
+        "port": 9001
+      },
+      "bytes_tx": 400,
+      "bytes_rx": 200,
+      "verdict": "allow",
+      "process": "checkout",
+      "pid": 9000
+    }
+  ],
+  "dns": [
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 1999990,
+      "qname": "api.stripe.com",
+      "qtype": "A",
+      "rcode": "NOERROR",
+      "answers": [
+        "34.200.0.10"
+      ]
+    },
+    {
+      "workload_id": "shop/checkout",
+      "ts_unix": 1999995,
+      "qname": "db.shop.svc",
+      "qtype": "A",
+      "rcode": "NOERROR",
+      "answers": [
+        "10.9.0.20"
+      ]
+    }
+  ]
+}

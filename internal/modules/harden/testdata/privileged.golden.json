@@ -1,0 +1,258 @@
+[
+  {
+    "rule_id": "DS-RAT-BOX-001",
+    "module": "harden",
+    "severity": "CRITICAL",
+    "title": "Container runs in privileged mode",
+    "description": "workload is privileged: it holds all capabilities and unrestricted device access, which is equivalent to root on the host",
+    "resource": "legacy-agent/app",
+    "remediation": "Remove --privileged / securityContext.privileged. Grant only the specific capabilities and device access the workload needs.",
+    "references": [
+      "CIS Docker Benchmark 5.4",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.2"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-002",
+    "module": "harden",
+    "severity": "HIGH",
+    "title": "Container runs as root (UID 0)",
+    "description": "runs as UID 0 (root)",
+    "resource": "legacy-agent/app",
+    "remediation": "Set a non-zero runAsUser (or a USER in the image) and runAsNonRoot: true so the kernel refuses to start the container as root.",
+    "references": [
+      "CIS Docker Benchmark 4.1",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.2.2"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-004",
+    "module": "harden",
+    "severity": "HIGH",
+    "title": "Escape-prone Linux capability granted",
+    "description": "grants CAP_NET_ADMIN, which can be leveraged to escape the container or tamper with the host",
+    "resource": "legacy-agent/app:CAP_NET_ADMIN",
+    "remediation": "Remove CAP_NET_ADMIN unless strictly required; prefer a narrower capability or a device/host interface with tighter scope.",
+    "references": [
+      "CIS Docker Benchmark 5.3",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.3"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-004",
+    "module": "harden",
+    "severity": "CRITICAL",
+    "title": "Escape-prone Linux capability granted",
+    "description": "grants CAP_SYS_ADMIN, which can be leveraged to escape the container or tamper with the host",
+    "resource": "legacy-agent/app:CAP_SYS_ADMIN",
+    "remediation": "Remove CAP_SYS_ADMIN unless strictly required; prefer a narrower capability or a device/host interface with tighter scope.",
+    "references": [
+      "CIS Docker Benchmark 5.3",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.3"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-004",
+    "module": "harden",
+    "severity": "HIGH",
+    "title": "Escape-prone Linux capability granted",
+    "description": "grants CAP_SYS_PTRACE, which can be leveraged to escape the container or tamper with the host",
+    "resource": "legacy-agent/app:CAP_SYS_PTRACE",
+    "remediation": "Remove CAP_SYS_PTRACE unless strictly required; prefer a narrower capability or a device/host interface with tighter scope.",
+    "references": [
+      "CIS Docker Benchmark 5.3",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.3"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-005",
+    "module": "harden",
+    "severity": "MEDIUM",
+    "title": "no-new-privileges is not set",
+    "description": "no-new-privileges is off: a setuid-root or file-capability binary can still escalate",
+    "resource": "legacy-agent/app",
+    "remediation": "Set no-new-privileges (OCI process.noNewPrivileges: true, or Kubernetes allowPrivilegeEscalation: false) to stop a process gaining privileges via setuid/file caps.",
+    "references": [
+      "CIS Docker Benchmark 5.25",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.3"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-006",
+    "module": "harden",
+    "severity": "LOW",
+    "title": "Root filesystem is writable",
+    "description": "the container root filesystem is writable, so an attacker can drop tools or tamper with binaries in place",
+    "resource": "legacy-agent/app",
+    "remediation": "Set the root filesystem read-only (--read-only / readOnlyRootFilesystem: true) and mount tmpfs/emptyDir for the few writable paths the workload needs.",
+    "references": [
+      "CIS Docker Benchmark 5.12",
+      "MITRE ATT\u0026CK T1610",
+      "NIST SP 800-190 4.5.3"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-007",
+    "module": "harden",
+    "severity": "HIGH",
+    "title": "Seccomp profile is not applied",
+    "description": "seccomp is explicitly unconfined: every syscall, including the dangerous ones, is reachable",
+    "resource": "legacy-agent/app",
+    "remediation": "Apply a seccomp profile (RuntimeDefault at minimum, or a generated least-privilege profile — see `dsecrat harden gen-profile`). Never run seccomp=unconfined.",
+    "references": [
+      "CIS Docker Benchmark 5.21",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.3"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-008",
+    "module": "harden",
+    "severity": "MEDIUM",
+    "title": "AppArmor profile is not applied",
+    "description": "AppArmor is explicitly unconfined",
+    "resource": "legacy-agent/app",
+    "remediation": "Apply an AppArmor profile (runtime/default, or a generated least-privilege profile). Do not run apparmor=unconfined on hosts where AppArmor is available.",
+    "references": [
+      "CIS Docker Benchmark 5.1",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.3"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-009",
+    "module": "harden",
+    "severity": "HIGH",
+    "title": "Container shares a host namespace",
+    "description": "shares hostNetwork: the container shares the host network stack, bypassing network policy and reaching loopback services",
+    "resource": "legacy-agent/app:hostNetwork",
+    "remediation": "Do not share host namespaces: drop hostPID/hostIPC/hostNetwork (and give the container its own OCI pid/ipc/network namespaces).",
+    "references": [
+      "CIS Docker Benchmark 5.9",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.1"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-009",
+    "module": "harden",
+    "severity": "HIGH",
+    "title": "Container shares a host namespace",
+    "description": "shares hostPID: the container sees and can signal every process on the host",
+    "resource": "legacy-agent/app:hostPID",
+    "remediation": "Do not share host namespaces: drop hostPID/hostIPC/hostNetwork (and give the container its own OCI pid/ipc/network namespaces).",
+    "references": [
+      "CIS Docker Benchmark 5.9",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.1"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-010",
+    "module": "harden",
+    "severity": "CRITICAL",
+    "title": "Docker/container runtime socket is mounted into the container",
+    "description": "mounts the runtime socket /var/run/docker.sock: full control of the host's containers (trivial host takeover)",
+    "resource": "legacy-agent/app:/var/run/docker.sock",
+    "remediation": "Never mount docker.sock (or containerd.sock) into a workload. If the workload must orchestrate containers, use a scoped API with authz, not the raw socket.",
+    "references": [
+      "CIS Docker Benchmark 5.31",
+      "MITRE ATT\u0026CK T1610",
+      "NIST SP 800-190 4.5.2"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-011",
+    "module": "harden",
+    "severity": "HIGH",
+    "title": "Sensitive host path is bind-mounted into the container",
+    "description": "bind-mounts host path /etc (read-only): exposes sensitive host state to the container",
+    "resource": "legacy-agent/app:/etc",
+    "remediation": "Remove the bind mount of /etc or scope it to a specific, non-sensitive subpath mounted read-only.",
+    "references": [
+      "CIS Docker Benchmark 5.5",
+      "MITRE ATT\u0026CK T1610",
+      "NIST SP 800-190 4.5.2"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-012",
+    "module": "harden",
+    "severity": "LOW",
+    "title": "No memory limit is set",
+    "description": "no memory limit: a leak or fork/alloc bomb can starve the whole node",
+    "resource": "legacy-agent/app",
+    "remediation": "Set a memory limit (--memory / resources.limits.memory) so one container cannot exhaust host memory and OOM its neighbours.",
+    "references": [
+      "CIS Docker Benchmark 5.10",
+      "MITRE ATT\u0026CK T1499",
+      "NIST SP 800-190 4.5.1"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-013",
+    "module": "harden",
+    "severity": "INFO",
+    "title": "No PID limit is set",
+    "description": "no per-container pids limit in the pod spec; confirm kubelet podPidsLimit is set node-wide",
+    "resource": "legacy-agent/app",
+    "remediation": "Set a pids limit (--pids-limit / an OCI pids cgroup) to bound fork bombs. In Kubernetes this is enforced node-wide via kubelet podPidsLimit.",
+    "references": [
+      "CIS Docker Benchmark 5.28",
+      "MITRE ATT\u0026CK T1499",
+      "NIST SP 800-190 4.5.1"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-014",
+    "module": "harden",
+    "severity": "LOW",
+    "title": "User namespace remapping is not in effect",
+    "description": "shares the host user namespace: an in-container root user maps to host root, removing a key escape barrier",
+    "resource": "legacy-agent/app",
+    "remediation": "Enable user-namespace remapping (userns-remap / Kubernetes hostUsers: false, or an OCI user namespace with uid/gid mappings) so container UID 0 is not host UID 0.",
+    "references": [
+      "CIS Docker Benchmark 5.30",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.5.4"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-015",
+    "module": "harden",
+    "severity": "LOW",
+    "title": "setuid/setgid escalation is not neutralized",
+    "description": "a setuid-root binary in the image could escalate privileges: no-new-privileges is off",
+    "resource": "legacy-agent/app",
+    "remediation": "Neutralize setuid: set no-new-privileges AND drop CAP_SETUID/CAP_SETGID; mount writable volumes with nosuid; prefer images built without setuid binaries.",
+    "references": [
+      "CIS Docker Benchmark 5.25",
+      "MITRE ATT\u0026CK T1611",
+      "NIST SP 800-190 4.4.2"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-BOX-020",
+    "module": "harden",
+    "severity": "INFO",
+    "title": "RuntimeClass strength guidance",
+    "description": "For internal workloads, recommended runtime: runc. trusted first-party code can run under runc provided the hardening controls in this report pass.",
+    "resource": "legacy-agent/app",
+    "remediation": "Set the workload's runtimeClass to at least the recommended runtime for its trust level.",
+    "references": [
+      "NIST SP 800-190 4.5.4",
+      "MITRE ATT\u0026CK T1611"
+    ],
+    "metadata": {
+      "declared": "runc",
+      "recommended": "runc",
+      "trust": "internal"
+    }
+  }
+]

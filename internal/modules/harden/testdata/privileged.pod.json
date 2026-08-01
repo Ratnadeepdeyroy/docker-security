@@ -1,0 +1,33 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": { "name": "legacy-agent" },
+  "spec": {
+    "hostPID": true,
+    "hostNetwork": true,
+    "runtimeClassName": "runc",
+    "containers": [
+      {
+        "name": "app",
+        "image": "acme/agent:latest",
+        "securityContext": {
+          "privileged": true,
+          "runAsUser": 0,
+          "allowPrivilegeEscalation": true,
+          "readOnlyRootFilesystem": false,
+          "capabilities": { "add": ["SYS_ADMIN", "NET_ADMIN", "SYS_PTRACE"] },
+          "seccompProfile": { "type": "Unconfined" },
+          "appArmorProfile": { "type": "Unconfined" }
+        },
+        "volumeMounts": [
+          { "name": "dsock", "mountPath": "/var/run/docker.sock" },
+          { "name": "hostetc", "mountPath": "/host/etc", "readOnly": true }
+        ]
+      }
+    ],
+    "volumes": [
+      { "name": "dsock", "hostPath": { "path": "/var/run/docker.sock" } },
+      { "name": "hostetc", "hostPath": { "path": "/etc" } }
+    ]
+  }
+}

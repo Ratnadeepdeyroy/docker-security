@@ -1,0 +1,36 @@
+{
+  "version": "1",
+  "name": "ai-workload",
+  "description": "Starter policy for the agentic era: model images and LLM-facing workloads carry extra provenance and isolation requirements.",
+  "mode": "enforce",
+  "rules": [
+    {
+      "id": "model-image-needs-aibom",
+      "description": "An image tagged as carrying model weights must ship a signed AI-BOM attestation.",
+      "match": "matches(image_ref, \"(model|weights|llm)\") && !verified(\"https://docker-security/attestations/ai-bom/v1\")",
+      "effect": "deny",
+      "severity": "high",
+      "message": "model image is missing a signed AI-BOM attestation",
+      "remediation": "Generate and attach a signed AI-BOM: dsecrat attest --type ai-bom --image <ref>",
+      "references": ["AI-BOM", "SLSA-provenance"]
+    },
+    {
+      "id": "no-unsafe-tool-scope",
+      "description": "An LLM-facing workload must not expose the host network or a hostPath, which would hand an agent a path to the node.",
+      "match": "workload_present && (host_network || uses_host_path)",
+      "effect": "deny",
+      "severity": "critical",
+      "message": "LLM-facing workload exposes an unsafe host tool/network scope",
+      "remediation": "Remove hostNetwork and hostPath mounts; give the agent only the network egress it needs."
+    },
+    {
+      "id": "agent-deploy-needs-provenance",
+      "description": "Deployments produced by an automated agent must carry a verified agent-action attestation.",
+      "match": "!verified(\"https://docker-security/attestations/agent-action/v1\") && !signed",
+      "effect": "warn",
+      "severity": "medium",
+      "message": "agent-generated deployment lacks verified provenance",
+      "remediation": "Have the agent emit an attested action: dsecrat attest --type agent-action --image <ref>"
+    }
+  ]
+}

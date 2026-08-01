@@ -1,0 +1,10 @@
+{
+  "name": "recorded-phase5-detection",
+  "kind": "detection",
+  "fires": {
+    "T1609": true,
+    "T1552.001": true,
+    "T1496": true,
+    "T1059": false
+  }
+}

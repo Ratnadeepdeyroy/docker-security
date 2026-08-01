@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "module-container-telemetry",
+  "images": [
+    {"image_id": "sha256:web", "image_ref": "web:1", "binaries": ["/usr/sbin/nginx", "/bin/sh"]}
+  ],
+  "events": [
+    {"seq": 1, "kind": "process", "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "web:1"}, "process": {"pid": 1, "exe": "/usr/sbin/nginx", "ancestry": ["/pause", "/usr/sbin/nginx"]}},
+    {"seq": 2, "kind": "process", "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "web:1"}, "process": {"pid": 800, "ppid": 1, "exe": "/bin/sh", "comm": "sh", "tty": true, "ancestry": ["/pause", "/usr/sbin/nginx", "/bin/sh"]}},
+    {"seq": 3, "kind": "process", "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "web:1"}, "process": {"pid": 801, "ppid": 800, "exe": "/tmp/dropper", "comm": "dropper", "ancestry": ["/pause", "/usr/sbin/nginx", "/bin/sh", "/tmp/dropper"]}},
+    {"seq": 4, "kind": "network", "container": {"id": "c-web-1", "name": "web", "image_id": "sha256:web", "image_ref": "web:1"}, "process": {"pid": 801, "exe": "/tmp/dropper"}, "network": {"op": "connect", "proto": "tcp", "remote_ip": "169.254.169.254", "remote_port": 80, "direction": "egress"}},
+    {"seq": 5, "kind": "process", "container": {"id": "c-agent-1", "name": "assistant", "image_id": "sha256:agent", "image_ref": "agent:1", "ai_agent": true}, "process": {"pid": 50, "exe": "/bin/sh", "comm": "sh", "ancestry": ["/app/agent", "/bin/sh"]}}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "GO-2022-0001",
+  "aliases": ["CVE-2022-1111"],
+  "summary": "Denial of service in github.com/example/vuln via crafted input.",
+  "affected": [
+    {
+      "package": {"ecosystem": "Go", "name": "github.com/example/vuln"},
+      "ranges": [{"type": "SEMVER", "events": [{"introduced": "0"}, {"fixed": "1.2.0"}]}],
+      "ecosystem_specific": {
+        "imports": [{"path": "github.com/example/vuln", "symbols": ["Parse", "unsafeDecode"]}]
+      }
+    }
+  ],
+  "severity": [{"type": "CVSS_V3", "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"}],
+  "references": [{"type": "FIX", "url": "https://github.com/example/vuln/commit/deadbeef"}]
+}

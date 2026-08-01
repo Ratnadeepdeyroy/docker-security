@@ -1,0 +1,78 @@
+{
+  "policy": "baseline.policy.json",
+  "cases": [
+    {
+      "name": "clean signed image is admitted",
+      "input": {
+        "image": { "reference": "docker.io/acme/api@sha256:abc", "registry": "docker.io", "digest": "sha256:abc" },
+        "attest": { "signed": true },
+        "findings": [{ "rule_id": "DS-RAT-VULN-9", "module": "vuln", "severity": "LOW", "title": "minor" }]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "unsigned image with critical CVE is denied",
+      "input": {
+        "image": { "reference": "docker.io/acme/api:1", "registry": "docker.io" },
+        "attest": { "signed": false },
+        "findings": [{ "rule_id": "DS-RAT-VULN-1", "module": "vuln", "severity": "CRITICAL", "title": "bad" }]
+      },
+      "expect": "deny",
+      "expect_firing": ["require-signature", "cve-budget-critical", "digest-pinned"]
+    },
+    {
+      "name": "trusted registry is allowed despite a critical CVE",
+      "input": {
+        "image": { "reference": "registry.internal.example.com/acme/api@sha256:ccc", "registry": "registry.internal.example.com", "digest": "sha256:ccc" },
+        "attest": { "signed": false },
+        "findings": [{ "rule_id": "DS-RAT-VULN-1", "module": "vuln", "severity": "CRITICAL", "title": "bad" }]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "privileged root workload is denied",
+      "input": {
+        "image": { "reference": "docker.io/acme/api@sha256:def", "registry": "docker.io", "digest": "sha256:def" },
+        "attest": { "signed": true },
+        "workload": { "present": true, "privileged": true, "run_as_root": true }
+      },
+      "expect": "deny",
+      "expect_firing": ["no-privileged", "run-as-nonroot"]
+    },
+    {
+      "name": "high-CVE budget waived for legacy image before expiry",
+      "now": "2026-02-01T00:00:00Z",
+      "input": {
+        "image": { "reference": "legacy/worker@sha256:aaa", "registry": "docker.io", "digest": "sha256:aaa" },
+        "attest": { "signed": true },
+        "findings": [
+          { "rule_id": "v1", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v2", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v3", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v4", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v5", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v6", "module": "vuln", "severity": "HIGH", "title": "h" }
+        ]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "high-CVE budget re-blocks the legacy image after the waiver expires",
+      "now": "2026-05-01T00:00:00Z",
+      "input": {
+        "image": { "reference": "legacy/worker@sha256:aaa", "registry": "docker.io", "digest": "sha256:aaa" },
+        "attest": { "signed": true },
+        "findings": [
+          { "rule_id": "v1", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v2", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v3", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v4", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v5", "module": "vuln", "severity": "HIGH", "title": "h" },
+          { "rule_id": "v6", "module": "vuln", "severity": "HIGH", "title": "h" }
+        ]
+      },
+      "expect": "deny",
+      "expect_firing": ["cve-budget-high"]
+    }
+  ]
+}

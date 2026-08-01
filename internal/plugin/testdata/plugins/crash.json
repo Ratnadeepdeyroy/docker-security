@@ -1,0 +1,7 @@
+{
+  "name": "crash-plugin",
+  "description": "misbehaving plugin that exits non-zero (isolation test)",
+  "target_types": ["dockerfile"],
+  "exec": ["/bin/sh", "${dir}/crash.sh"],
+  "timeout_ms": 5000
+}

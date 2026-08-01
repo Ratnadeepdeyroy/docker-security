@@ -1,0 +1,9 @@
+{
+  "name": "recorded-phase4-admission",
+  "kind": "admission",
+  "fires": {
+    "T1610": true,
+    "T1611": true,
+    "T1613": false
+  }
+}

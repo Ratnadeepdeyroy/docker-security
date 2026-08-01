@@ -1,0 +1,562 @@
+[
+  {
+    "rule_id": "DS-RAT-RBAC-000",
+    "module": "rbac",
+    "severity": "INFO",
+    "title": "RBAC analyzed: 28 risk(s) across identities",
+    "description": "3 CRITICAL, 17 HIGH, 7 MEDIUM, 1 INFO",
+    "resource": "testdata/cluster.json",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/"
+    ]
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-001",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "Wildcard grant in ClusterRole/cluster-admin",
+    "description": "rule 0 uses '*' for verbs, resources, apiGroups",
+    "resource": "ClusterRole/cluster-admin",
+    "remediation": "Replace '*' with the specific verbs/resources/apiGroups actually required (see least-privilege report).",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://csrc.nist.gov/projects/risk-management/sp800-53-controls (AC-6 Least Privilege)"
+    ],
+    "metadata": {
+      "role": "cluster-admin",
+      "wildcardDimensions": "verbs,resources,apiGroups"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-002",
+    "module": "rbac",
+    "severity": "CRITICAL",
+    "title": "ServiceAccount kube-system/ops is bound to cluster-admin",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Grant a scoped role instead of cluster-admin; reserve cluster-admin for break-glass with time-boxed, audited elevation.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-003",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can grant permissions it does not itself hold (escalate)",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove the 'escalate' verb unless this identity is a trusted controller; prefer a narrowly scoped role.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops",
+      "verb": "escalate"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-004",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can bind any role to any subject (bind), including cluster-admin",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove the 'bind' verb unless this identity is a trusted controller; prefer a narrowly scoped role.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops",
+      "verb": "bind"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-005",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can act as other users/groups/service accounts (impersonate)",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove the 'impersonate' verb unless this identity is a trusted controller; prefer a narrowly scoped role.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops",
+      "verb": "impersonate"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-006",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can read Secrets (including ServiceAccount tokens)",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Scope secret access to named secrets (resourceNames) or remove it; treat secret read as token theft.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "secrets",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-006",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount payments/app can read Secrets (including ServiceAccount tokens)",
+    "description": "via binding \"app-reads-secrets\" → Role \"secret-reader\" (namespace payments)",
+    "resource": "secret-reader",
+    "remediation": "Scope secret access to named secrets (resourceNames) or remove it; treat secret read as token theft.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "app-reads-secrets",
+      "resource": "secrets",
+      "role": "secret-reader",
+      "scope": "namespace payments",
+      "subject": "ServiceAccount/payments/app"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-007",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can attach to running pods (code execution as the pod)",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove pods/attach unless required; audit and time-box it.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "pods/attach",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-007",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can exec into running pods (code execution as the pod)",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove pods/exec unless required for support tooling; audit and time-box it.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "pods/exec",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-008",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops has proxy/node access (nodes), which can reach the kubelet and node-level resources",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove proxy/node access from workload identities; restrict to the control plane.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "nodes",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-008",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops has proxy/node access (nodes/proxy), which can reach the kubelet and node-level resources",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove proxy/node access from workload identities; restrict to the control plane.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "nodes/proxy",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-008",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops has proxy/node access (pods/proxy), which can reach the kubelet and node-level resources",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove proxy/node access from workload identities; restrict to the control plane.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "pods/proxy",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-008",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops has proxy/node access (services/proxy), which can reach the kubelet and node-level resources",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Remove proxy/node access from workload identities; restrict to the control plane.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "services/proxy",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-009",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can mint ServiceAccount tokens (serviceaccounts/token)",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Restrict token minting to controllers that require it; it is equivalent to holding every SA's credentials.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "serviceaccounts/token",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-009",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can mint ServiceAccount tokens (tokenrequests)",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Restrict token minting to controllers that require it; it is equivalent to holding every SA's credentials.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "tokenrequests",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-010",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can act as a CSR signer",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Restrict signer access to the control plane.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "signers",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-010",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can approve CSRs",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Restrict CSR approval to the control plane.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "certificatesigningrequests/approval",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-010",
+    "module": "rbac",
+    "severity": "HIGH",
+    "title": "ServiceAccount kube-system/ops can create CSRs",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Only allow CSR creation where required; combined with approve/sign it forges arbitrary client certificates.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "certificatesigningrequests",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-013",
+    "module": "rbac",
+    "severity": "MEDIUM",
+    "title": "ServiceAccount kube-system/ops can create workloads (cronjobs), and thus choose the ServiceAccount and securityContext they run with",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Pair workload-create access with a Phase 4 admission policy that blocks privileged/hostPath/hostNetwork pods.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "cronjobs",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-013",
+    "module": "rbac",
+    "severity": "MEDIUM",
+    "title": "ServiceAccount kube-system/ops can create workloads (daemonsets), and thus choose the ServiceAccount and securityContext they run with",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Pair workload-create access with a Phase 4 admission policy that blocks privileged/hostPath/hostNetwork pods.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "daemonsets",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-013",
+    "module": "rbac",
+    "severity": "MEDIUM",
+    "title": "ServiceAccount kube-system/ops can create workloads (deployments), and thus choose the ServiceAccount and securityContext they run with",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Pair workload-create access with a Phase 4 admission policy that blocks privileged/hostPath/hostNetwork pods.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "deployments",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-013",
+    "module": "rbac",
+    "severity": "MEDIUM",
+    "title": "ServiceAccount kube-system/ops can create workloads (jobs), and thus choose the ServiceAccount and securityContext they run with",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Pair workload-create access with a Phase 4 admission policy that blocks privileged/hostPath/hostNetwork pods.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "jobs",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-013",
+    "module": "rbac",
+    "severity": "MEDIUM",
+    "title": "ServiceAccount kube-system/ops can create workloads (pods), and thus choose the ServiceAccount and securityContext they run with",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Pair workload-create access with a Phase 4 admission policy that blocks privileged/hostPath/hostNetwork pods.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "pods",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-013",
+    "module": "rbac",
+    "severity": "MEDIUM",
+    "title": "ServiceAccount kube-system/ops can create workloads (replicasets), and thus choose the ServiceAccount and securityContext they run with",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Pair workload-create access with a Phase 4 admission policy that blocks privileged/hostPath/hostNetwork pods.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "replicasets",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-013",
+    "module": "rbac",
+    "severity": "MEDIUM",
+    "title": "ServiceAccount kube-system/ops can create workloads (statefulsets), and thus choose the ServiceAccount and securityContext they run with",
+    "description": "via binding \"ops-admin\" → ClusterRole \"cluster-admin\" (cluster-wide)",
+    "resource": "cluster-admin",
+    "remediation": "Pair workload-create access with a Phase 4 admission policy that blocks privileged/hostPath/hostNetwork pods.",
+    "references": [
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      "https://attack.mitre.org/tactics/TA0004/"
+    ],
+    "metadata": {
+      "binding": "ops-admin",
+      "resource": "statefulsets",
+      "role": "cluster-admin",
+      "scope": "cluster-wide",
+      "subject": "ServiceAccount/kube-system/ops"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-014",
+    "module": "rbac",
+    "severity": "CRITICAL",
+    "title": "Privilege-escalation path from kube-system/ops to cluster-admin",
+    "description": "kube-system/ops  →  bound directly to cluster-admin/system:masters ⇒ cluster-admin",
+    "resource": "cluster-admin",
+    "remediation": "Break the chain: remove the escalation primitive named in the first hop, or block privileged pod creation at admission (Phase 4).",
+    "references": [
+      "https://attack.mitre.org/tactics/TA0004/",
+      "https://attack.mitre.org/techniques/T1611/",
+      "https://kubernetes.io/docs/concepts/security/rbac-good-practices/"
+    ],
+    "metadata": {
+      "escalationPath": "kube-system/ops -\u003e bound directly to cluster-admin/system:masters ⇒ cluster-admin",
+      "hops": "1",
+      "subject": "ServiceAccount/kube-system/ops",
+      "target": "cluster-admin"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-016",
+    "module": "rbac",
+    "severity": "CRITICAL",
+    "title": "Container \"buildkit\" mounts the Docker socket (/var/run/docker.sock)",
+    "description": "A mounted Docker daemon socket gives the container full control of every container on the host — a container escape by design.",
+    "resource": "buildkit",
+    "remediation": "Never bind-mount docker.sock into containers; use a scoped API proxy or rootless/socket-less tooling.",
+    "references": [
+      "https://docs.docker.com/engine/security/#docker-daemon-attack-surface",
+      "https://attack.mitre.org/techniques/T1611/"
+    ],
+    "metadata": {
+      "container": "buildkit",
+      "host": "runner-1",
+      "path": "/var/run/docker.sock"
+    }
+  },
+  {
+    "rule_id": "DS-RAT-RBAC-017",
+    "module": "rbac",
+    "severity": "INFO",
+    "title": "Docker daemon on runner-1 is not rootless",
+    "description": "A root daemon means a container breakout is a host-root breakout.",
+    "resource": "runner-1",
+    "remediation": "Adopt rootless Docker where feasible to shrink the blast radius of an escape.",
+    "references": [
+      "https://docs.docker.com/engine/security/#docker-daemon-attack-surface"
+    ],
+    "metadata": {
+      "host": "runner-1"
+    }
+  }
+]

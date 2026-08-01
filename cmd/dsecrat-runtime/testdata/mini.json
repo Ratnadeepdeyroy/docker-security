@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "mini",
+  "images": [{"image_id": "sha256:web", "image_ref": "web:1", "binaries": ["/usr/sbin/nginx", "/bin/sh"]}],
+  "events": [
+    {"seq": 1, "kind": "process", "container": {"id": "c1", "name": "web", "image_id": "sha256:web", "image_ref": "web:1"}, "process": {"pid": 1, "exe": "/usr/sbin/nginx", "ancestry": ["/usr/sbin/nginx"]}},
+    {"seq": 2, "kind": "process", "container": {"id": "c1", "name": "web", "image_id": "sha256:web", "image_ref": "web:1"}, "process": {"pid": 80, "ppid": 1, "exe": "/bin/sh", "comm": "sh", "ancestry": ["/usr/sbin/nginx", "/bin/sh"]}}
+  ]
+}

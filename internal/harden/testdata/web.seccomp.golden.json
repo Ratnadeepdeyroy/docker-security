@@ -1,0 +1,60 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "defaultErrnoRet": 1,
+  "architectures": [
+    "SCMP_ARCH_X86_64",
+    "SCMP_ARCH_X86",
+    "SCMP_ARCH_X32",
+    "SCMP_ARCH_AARCH64",
+    "SCMP_ARCH_ARM"
+  ],
+  "syscalls": [
+    {
+      "names": [
+        "accept4",
+        "arch_prctl",
+        "brk",
+        "clock_getres",
+        "clock_gettime",
+        "clock_nanosleep",
+        "clone",
+        "close",
+        "close_range",
+        "connect",
+        "epoll_create1",
+        "epoll_ctl",
+        "epoll_wait",
+        "execve",
+        "exit",
+        "exit_group",
+        "fstat",
+        "futex",
+        "getpid",
+        "getrandom",
+        "gettid",
+        "madvise",
+        "mmap",
+        "mprotect",
+        "munmap",
+        "nanosleep",
+        "openat",
+        "prlimit64",
+        "read",
+        "restart_syscall",
+        "rseq",
+        "rt_sigaction",
+        "rt_sigprocmask",
+        "rt_sigreturn",
+        "sched_getaffinity",
+        "sched_yield",
+        "set_robust_list",
+        "set_tid_address",
+        "sigaltstack",
+        "socket",
+        "tgkill",
+        "write"
+      ],
+      "action": "SCMP_ACT_ALLOW"
+    }
+  ]
+}

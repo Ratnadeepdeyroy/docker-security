@@ -1,0 +1,49 @@
+{
+  "daemon": {
+    "iptables": false,
+    "log-level": "debug",
+    "insecure-registries": ["10.0.0.5:5000"],
+    "storage-driver": "aufs",
+    "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"],
+    "live-restore": false,
+    "userland-proxy": true,
+    "seccomp-profile": "unconfined",
+    "experimental": true
+  },
+  "info": {
+    "server_version": "24.0.7",
+    "rootless": false,
+    "logging_driver": "json-file",
+    "storage_driver": "aufs"
+  },
+  "files": [
+    {"path": "/etc/docker", "exists": true, "mode": "0777", "owner": "app", "group": "app"},
+    {"path": "/etc/docker/daemon.json", "exists": true, "mode": "0666", "owner": "app", "group": "app"},
+    {"path": "/var/run/docker.sock", "exists": true, "mode": "0666", "owner": "root", "group": "root"}
+  ],
+  "containers": [
+    {
+      "name": "web",
+      "privileged": true,
+      "cap_add": ["SYS_ADMIN", "NET_ADMIN"],
+      "security_opt": ["seccomp=unconfined", "apparmor=unconfined"],
+      "pid_mode": "host",
+      "ipc_mode": "host",
+      "uts_mode": "host",
+      "network_mode": "host",
+      "readonly_rootfs": false,
+      "user": "root",
+      "memory_limit": 0,
+      "pids_limit": 0,
+      "restart_policy": "always",
+      "healthcheck": false,
+      "mounts": [
+        {"source": "/", "destination": "/host", "rw": true},
+        {"source": "/var/run/docker.sock", "destination": "/var/run/docker.sock", "rw": true}
+      ],
+      "port_bindings": [
+        {"host_ip": "0.0.0.0", "host_port": 80, "container_port": 8080}
+      ]
+    }
+  ]
+}

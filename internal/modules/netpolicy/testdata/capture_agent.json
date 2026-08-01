@@ -1,0 +1,136 @@
+{
+  "policy_mode": "audit",
+  "workloads": [
+    {
+      "id": "ai/support-agent",
+      "name": "support-agent",
+      "namespace": "ai",
+      "labels": {
+        "app": "support-agent"
+      },
+      "kind": "agent"
+    }
+  ],
+  "flows": [
+    {
+      "workload_id": "ai/support-agent",
+      "ts_unix": 3000000,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.7.0.3",
+        "port": 46000
+      },
+      "dst": {
+        "ip": "104.18.0.1",
+        "port": 443,
+        "fqdn": "api.openai.com"
+      },
+      "bytes_tx": 2000,
+      "bytes_rx": 15000,
+      "verdict": "allow",
+      "process": "agent",
+      "pid": 9500
+    },
+    {
+      "workload_id": "ai/support-agent",
+      "ts_unix": 3000120,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.7.0.3",
+        "port": 46001
+      },
+      "dst": {
+        "ip": "104.18.0.1",
+        "port": 443,
+        "fqdn": "api.openai.com"
+      },
+      "bytes_tx": 2000,
+      "bytes_rx": 15000,
+      "verdict": "allow",
+      "process": "agent",
+      "pid": 9500
+    },
+    {
+      "workload_id": "ai/support-agent",
+      "ts_unix": 3000240,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.7.0.3",
+        "port": 46002
+      },
+      "dst": {
+        "ip": "104.18.0.1",
+        "port": 443,
+        "fqdn": "api.openai.com"
+      },
+      "bytes_tx": 2000,
+      "bytes_rx": 15000,
+      "verdict": "allow",
+      "process": "agent",
+      "pid": 9500
+    },
+    {
+      "workload_id": "ai/support-agent",
+      "ts_unix": 3000360,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.7.0.3",
+        "port": 46003
+      },
+      "dst": {
+        "ip": "104.18.0.1",
+        "port": 443,
+        "fqdn": "api.openai.com"
+      },
+      "bytes_tx": 2000,
+      "bytes_rx": 15000,
+      "verdict": "allow",
+      "process": "agent",
+      "pid": 9500
+    },
+    {
+      "workload_id": "ai/support-agent",
+      "ts_unix": 3000500,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.7.0.3",
+        "port": 47000
+      },
+      "dst": {
+        "ip": "45.77.0.9",
+        "port": 443,
+        "fqdn": "llm-proxy.shadow.example"
+      },
+      "bytes_tx": 9000,
+      "bytes_rx": 500,
+      "verdict": "allow",
+      "process": "agent",
+      "pid": 9500
+    },
+    {
+      "workload_id": "ai/support-agent",
+      "ts_unix": 3000600,
+      "proto": "tcp",
+      "direction": "egress",
+      "src": {
+        "ip": "10.7.0.3",
+        "port": 47100
+      },
+      "dst": {
+        "ip": "45.77.0.10",
+        "port": 443,
+        "fqdn": "telemetry.thirdparty.example"
+      },
+      "bytes_tx": 700,
+      "bytes_rx": 700,
+      "verdict": "allow",
+      "process": "agent",
+      "pid": 9500
+    }
+  ]
+}
