@@ -186,4 +186,10 @@ If `dsecrat` saves you time, please consider starring the repo ⭐ and
 
 ### Star history
 
+A ⭐ helps others discover `dsecrat` — see the
+[**star history**](https://star-history.com/#Ratnadeepdeyroy/docker-security&Date).
+
+<!-- Once the repo has a few stars, swap the link above for the live chart:
 [![Star History Chart](https://api.star-history.com/svg?repos=Ratnadeepdeyroy/docker-security&type=Date)](https://star-history.com/#Ratnadeepdeyroy/docker-security&Date)
+-->
+
