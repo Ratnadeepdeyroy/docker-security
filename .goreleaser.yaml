@@ -1,0 +1,63 @@
+# GoReleaser config — builds the two binaries for every supported OS/arch and
+# attaches archives + checksums to the GitHub Release on a tag push.
+# Run in CI (.github/workflows/release.yml) with the built-in GITHUB_TOKEN.
+# Validate locally with: goreleaser check
+version: 2
+
+project_name: dsecrat
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: dsecrat
+    main: ./cmd/dsecrat
+    binary: dsecrat
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+  - id: dsecrat-runtime
+    main: ./cmd/dsecrat-runtime
+    binary: dsecrat-runtime
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: default
+    ids: [dsecrat, dsecrat-runtime]
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - NOTICE
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+release:
+  draft: false
+  prerelease: auto
